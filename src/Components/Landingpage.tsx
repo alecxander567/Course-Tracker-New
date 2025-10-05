@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaBook, FaStickyNote, FaProjectDiagram } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -26,33 +27,30 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/login/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      const { data } = await axios.post(
+        "http://localhost:8000/api/login/",
+        { username, password },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true, 
+        }
+      );
 
-      if (!response.ok) {
-        const errData = await response.json();
-        setError(errData.error || "Login failed");
-        setLoading(false);
-        return;
-      }
-
-      const data = await response.json();
       console.log("Logged in user:", data);
 
       navigate("/homepage");
 
       setUsername("");
       setPassword("");
-      setLoading(false);
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Something went wrong. Please try again.");
+      if (err.response && err.response.data) {
+        setError(err.response.data.error || "Login failed");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -121,44 +119,41 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
     setSuccess(false);
 
     try {
-      const response = await fetch("http://localhost:8000/api/register/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const { data } = await axios.post(
+        "http://localhost:8000/api/register/",
+        {
           username,
           email,
           password,
           full_name: fullname,
-        }),
-      });
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true, 
+        }
+      );
 
-      if (!response.ok) {
-        const errData = await response.json();
-        setError(JSON.stringify(errData));
-        setLoading(false);
-        return;
-      }
+      console.log("Registered user:", data);
 
-      const data = await response.json();
-        console.log("Registered user:", data);
+      setSuccess(true);
 
-        setLoading(false);
-        setSuccess(true); 
-        setUsername("");
-        setEmail("");
-        setFullname("");
-        setPassword("");
+      setUsername("");
+      setEmail("");
+      setFullname("");
+      setPassword("");
 
-        setTimeout(() => {
-          setSuccess(false);
-          onClose();
+      setTimeout(() => {
+        setSuccess(false);
+        onClose();
       }, 3000);
-
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Something went wrong. Please try again.");
+      if (err.response && err.response.data) {
+        setError(JSON.stringify(err.response.data));
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -233,7 +228,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
   );
 };
 
-
 function Landingpage() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -254,7 +248,7 @@ function Landingpage() {
 
       <div className="flex flex-col md:flex-row gap-6">
         <button
-          className="px-8 py-3 bg-purple-900 hover:bg-purple-700 rounded-lg text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+          className="px-10 py-3 bg-purple-900 hover:bg-purple-700 rounded-lg text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
           onClick={() => setIsLoginOpen(true)}
         >
           Log in
@@ -268,19 +262,19 @@ function Landingpage() {
       </div>
 
       <section className="mt-20 max-w-5xl w-full px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="bg-purple-800/50 p-6 rounded-xl text-center flex flex-col items-center gap-4">
+        <div className="bg-purple-900 p-6 rounded-xl text-center flex flex-col items-center gap-4">
           <FaBook className="text-purple-400 text-4xl" />
           <h2 className="text-2xl font-bold mb-2">Subjects</h2>
           <p>Track all your subjects and record grades effortlessly.</p>
         </div>
 
-        <div className="bg-purple-800/50 p-6 rounded-xl text-center flex flex-col items-center gap-4">
+        <div className="bg-purple-900 p-6 rounded-xl text-center flex flex-col items-center gap-4">
           <FaStickyNote className="text-purple-400 text-4xl" />
           <h2 className="text-2xl font-bold mb-2">Notes</h2>
           <p>Organize notes per subject to revise faster and smarter.</p>
         </div>
 
-        <div className="bg-purple-800/50 p-6 rounded-xl text-center flex flex-col items-center gap-4">
+        <div className="bg-purple-900 p-6 rounded-xl text-center flex flex-col items-center gap-4">
           <FaProjectDiagram className="text-purple-400 text-4xl" />
           <h2 className="text-2xl font-bold mb-2">Projects</h2>
           <p>Keep all your projects in one place and track progress.</p>
