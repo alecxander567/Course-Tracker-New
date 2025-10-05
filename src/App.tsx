@@ -1,6 +1,6 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Landingpage from "./Components/Landingpage";
-import Homepage from "./Components/Homepage";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Landingpage from './Components/Landingpage';
+import Homepage from './Components/Homepage';
 
 function App() {
   return (
@@ -14,4 +14,3 @@ function App() {
 }
 
 export default App;
-

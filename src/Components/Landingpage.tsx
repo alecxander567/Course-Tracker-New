@@ -32,8 +32,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         { username, password },
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true, 
-        }
+          withCredentials: true,
+        },
       );
 
       console.log("Logged in user:", data);
@@ -110,7 +110,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false); 
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,8 +129,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
         },
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true, 
-        }
+          withCredentials: true,
+        },
       );
 
       console.log("Registered user:", data);
@@ -285,7 +285,7 @@ function Landingpage() {
       <RegisterModal
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
-       />
+      />
     </div>
   );
 }
