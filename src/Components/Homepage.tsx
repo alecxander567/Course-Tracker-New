@@ -89,11 +89,27 @@ function Homepage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [date] = useState(new Date());
+
+  const year = date.getFullYear();
+
+  const firstDay = new Date(year, date.getMonth(), 1).getDay();
+  const totalDays = new Date(year, date.getMonth() + 1, 0).getDate();
+
+  const calendarDays: (number | null)[] = Array(firstDay).fill(null);
+  for (let i = 1; i <= totalDays; i++) {
+    calendarDays.push(i);
+  }
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/user/1/");
+        const response = await axios.get(
+          "http://localhost:8000/api/current_user/",
+          {
+            withCredentials: true,
+          },
+        );
         setUsername(response.data.username);
       } catch (error) {
         console.error("Failed to fetch username:", error);
@@ -429,7 +445,7 @@ function Homepage() {
         <section className="mb-6 w-full max-w-6xl">
           <h2 className="text-xl font-semibold mb-4 text-white">My Subjects</h2>
           <div className="p-6 rounded-2xl shadow-lg bg-gradient-to-r from-purple-700 via-purple-800 to-purple-900 text-white">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 grid-flow-dense">
               {allCategories.map((category) => (
                 <div
                   key={category}
@@ -484,6 +500,82 @@ function Homepage() {
                   </button>
                 </div>
               ))}
+
+              {allCategories.length % 2 !== 0 && (
+                <div className="p-4 rounded-lg bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 shadow flex flex-col h-70">
+                  <h3 className="font-bold mb-2 text-center">Calendar</h3>
+                  <div className="flex-1">
+                    <div className="w-full h-full bg-purple-800/50 rounded-lg p-2 flex flex-col">
+                      {(() => {
+                        const today = new Date();
+                        const month = today.toLocaleString("default", {
+                          month: "long",
+                        });
+                        const year = today.getFullYear();
+                        const firstDay = new Date(
+                          year,
+                          today.getMonth(),
+                          1,
+                        ).getDay();
+                        const totalDays = new Date(
+                          year,
+                          today.getMonth() + 1,
+                          0,
+                        ).getDate();
+
+                        const calendarDays: (number | null)[] =
+                          Array(firstDay).fill(null);
+                        for (let i = 1; i <= totalDays; i++)
+                          calendarDays.push(i);
+
+                        const days = [
+                          "Sun",
+                          "Mon",
+                          "Tue",
+                          "Wed",
+                          "Thu",
+                          "Fri",
+                          "Sat",
+                        ];
+
+                        return (
+                          <>
+                            <div className="text-center font-bold mb-2 text-white">
+                              {month} {year}
+                            </div>
+                            <div className="grid grid-cols-7 gap-1 text-xs text-center text-white/80">
+                              {days.map((d) => (
+                                <div key={d} className="font-semibold">
+                                  {d}
+                                </div>
+                              ))}
+                              {calendarDays.map((day, index) => {
+                                const isToday =
+                                  day === today.getDate() &&
+                                  today.getMonth() === new Date().getMonth();
+                                return (
+                                  <div
+                                    key={index}
+                                    className={`p-1 rounded h-6 flex items-center justify-center ${
+                                      day
+                                        ? isToday
+                                          ? "bg-purple-300 text-purple-900 font-bold"
+                                          : "hover:bg-purple-700 transition"
+                                        : ""
+                                    }`}
+                                  >
+                                    {day || ""}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -735,7 +827,7 @@ function Homepage() {
 
                         setAlertMessage("Subject deleted successfully!");
                         setShowAlert(true);
-                        setTimeout(() => setShowAlert(false), 3000); // hide after 3s
+                        setTimeout(() => setShowAlert(false), 3000);
                       } catch (err) {
                         console.error("Failed to delete subject:", err);
                       }
