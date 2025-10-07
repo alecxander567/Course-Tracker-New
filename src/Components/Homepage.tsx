@@ -41,6 +41,7 @@ function Homepage() {
     grade: "",
     semester: "",
     schoolYear: "",
+    status: "Pending",
   });
   const [subjects, setSubjects] = useState<Record<string, Subject[]>>({
     Programming: [],
@@ -57,6 +58,7 @@ function Homepage() {
     grade: string;
     semester: string;
     schoolYear: string;
+    status: "Pending" | "Ongoing" | "Completed";
   }>(null);
 
   const openEditSubjectModal = (
@@ -66,6 +68,7 @@ function Homepage() {
       grade?: string;
       semester?: string;
       schoolYear?: string;
+      status?: string;
     },
   ) => {
     setEditingSubject({
@@ -76,8 +79,10 @@ function Homepage() {
       grade: subject.grade ? String(subject.grade) : "",
       semester: subject.semester || "",
       schoolYear: subject.schoolYear || "",
+      status: subject.status || "Pending",
     });
   };
+
   const allCategories = [
     "Programming",
     "Database",
@@ -90,6 +95,10 @@ function Homepage() {
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [date] = useState(new Date());
+  const [alert, setAlert] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const year = date.getFullYear();
 
@@ -100,6 +109,10 @@ function Homepage() {
   for (let i = 1; i <= totalDays; i++) {
     calendarDays.push(i);
   }
+  const [totalCourses, setTotalCourses] = useState(0);
+  const [completed, setCompleted] = useState(0);
+  const [ongoing, setOngoing] = useState(0);
+  const [pending, setPending] = useState(0);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -119,9 +132,13 @@ function Homepage() {
   }, []);
 
   useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
     const fetchSubjects = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/subjects/");
+        const data = response.data;
+
         const subjectsByCategory: Record<string, Subject[]> = {
           Programming: [],
           Database: [],
@@ -130,21 +147,46 @@ function Homepage() {
           Electives: [],
         };
 
-        response.data.forEach((subj: any) => {
+        data.forEach((subj: any) => {
           if (subjectsByCategory[subj.category]) {
             subjectsByCategory[subj.category].push({
               id: subj.id,
               name: subj.subject_name,
+              description: subj.description,
+              grade: subj.grade,
+              semester: subj.semester,
+              schoolYear: subj.school_year,
+              status: subj.status,
             });
           }
         });
 
+        const totalCount = data.length;
+        const completedCount = data.filter(
+          (s: any) => s.status === "Completed",
+        ).length;
+        const ongoingCount = data.filter(
+          (s: any) => s.status === "Ongoing",
+        ).length;
+        const pendingCount = data.filter(
+          (s: any) => s.status === "Pending",
+        ).length;
+
         setSubjects(subjectsByCategory);
+        setTotalCourses(totalCount);
+        setCompleted(completedCount);
+        setOngoing(ongoingCount);
+        setPending(pendingCount);
       } catch (error) {
         console.error("Failed to fetch subjects:", error);
       }
     };
+
     fetchSubjects();
+
+    intervalId = setInterval(fetchSubjects, 5000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleLogout = async () => {
@@ -160,11 +202,6 @@ function Homepage() {
       alert("Failed to log out. Try again.");
     }
   };
-
-  const [alert, setAlert] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
 
   const handleSaveSubject = async () => {
     if (!newSubjectDetails.name.trim()) {
@@ -184,6 +221,7 @@ function Homepage() {
           : null,
         semester: newSubjectDetails.semester,
         school_year: newSubjectDetails.schoolYear,
+        status: newSubjectDetails.status,
       };
 
       const response = await axios.post(
@@ -214,6 +252,7 @@ function Homepage() {
         grade: "",
         semester: "",
         schoolYear: "",
+        status: "Pending",
       });
       setShowModal(false);
 
@@ -237,6 +276,7 @@ function Homepage() {
         semester: editingSubject.semester,
         school_year: editingSubject.schoolYear,
         category: editingSubject.category,
+        status: editingSubject.status,
       };
 
       const { data: updatedSubject } = await axios.patch(
@@ -262,6 +302,7 @@ function Homepage() {
           semester: updatedSubject.semester,
           schoolYear: updatedSubject.school_year,
           category: updatedSubject.category,
+          status: updatedSubject.status,
         });
 
         return updated;
@@ -326,10 +367,16 @@ function Homepage() {
             Course Tracker
           </h2>
           <nav className="flex flex-col gap-4">
-            <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
+            <button
+              onClick={() => navigate("/homepage")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
               <FaTachometerAlt /> Dashboard
             </button>
-            <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
+            <button
+              onClick={() => navigate("/courses")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
               <FaBook /> Courses
             </button>
             <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
@@ -378,28 +425,28 @@ function Homepage() {
             <FaBook className="text-purple-900 text-3xl" />
             <div>
               <h3 className="font-bold mb-1 text-white">Total Courses</h3>
-              <p className="text-2xl text-white">5</p>
+              <p className="text-2xl text-white">{totalCourses}</p>
             </div>
           </div>
           <div className="bg-blue-500 p-4 rounded shadow hover:shadow-lg transition flex items-center gap-3">
-            <FaCheckCircle className="text-white-600 text-3xl" />
+            <FaCheckCircle className="text-white text-3xl" />
             <div>
               <h3 className="font-bold mb-1 text-white">Completed</h3>
-              <p className="text-2xl text-white">2</p>
+              <p className="text-2xl text-white">{completed}</p>
             </div>
           </div>
           <div className="bg-red-400 p-4 rounded shadow hover:shadow-lg transition flex items-center gap-3">
-            <FaPlayCircle className="text-red-600 text-3xl" />
+            <FaPlayCircle className="text-red-700 text-3xl" />
             <div>
               <h3 className="font-bold mb-1 text-white">Ongoing</h3>
-              <p className="text-2xl text-white">3</p>
+              <p className="text-2xl text-white">{ongoing}</p>
             </div>
           </div>
           <div className="bg-orange-500 p-4 rounded shadow hover:shadow-lg transition flex items-center gap-3">
             <FaHourglassHalf className="text-yellow-900 text-3xl" />
             <div>
               <h3 className="font-bold mb-1 text-white">Pending</h3>
-              <p className="text-2xl text-white">1</p>
+              <p className="text-2xl text-white">{pending}</p>
             </div>
           </div>
         </section>
@@ -666,6 +713,21 @@ function Homepage() {
                   }
                 />
 
+                <select
+                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  value={newSubjectDetails.status}
+                  onChange={(e) =>
+                    setNewSubjectDetails((prev) => ({
+                      ...prev,
+                      status: e.target.value,
+                    }))
+                  }
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Ongoing">Ongoing</option>
+                  <option value="Completed">Completed</option>
+                </select>
+
                 <div className="flex justify-end gap-2">
                   <button
                     className="px-4 py-2 bg-purple-300 text-purple-900 rounded hover:bg-purple-400 transition"
@@ -771,6 +833,21 @@ function Homepage() {
                     })
                   }
                 />
+
+                <select
+                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  value={editingSubject.status}
+                  onChange={(e) =>
+                    setEditingSubject({
+                      ...editingSubject,
+                      status: e.target.value,
+                    })
+                  }
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Ongoing">Ongoing</option>
+                  <option value="Completed">Completed</option>
+                </select>
 
                 <div className="flex justify-end gap-2">
                   <button
