@@ -83,13 +83,7 @@ function Homepage() {
     });
   };
 
-  const allCategories = [
-    "Programming",
-    "Database",
-    "Networking",
-    "Security",
-    "Electives",
-  ];
+  const [allCategories, setAllCategories] = useState([]);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -113,6 +107,58 @@ function Homepage() {
   const [completed, setCompleted] = useState(0);
   const [ongoing, setOngoing] = useState(0);
   const [pending, setPending] = useState(0);
+  const [careerData, setCareerData] = useState([]);
+  const [careerRecommendation, setCareerRecommendation] = useState<string>("");
+
+  useEffect(() => {
+    const fetchRecommendation = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/api/career_recommendation/",
+          { withCredentials: true },
+        );
+        setCareerRecommendation(response.data.recommended_career);
+      } catch (error) {
+        console.error("Error fetching recommendation:", error);
+      }
+    };
+
+    fetchRecommendation();
+  }, []);
+
+  useEffect(() => {
+    const csrfToken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("csrftoken="))
+      ?.split("=")[1];
+
+    const fetchAnalytics = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/api/career_recommendation/",
+          {
+            headers: { "X-CSRFToken": csrfToken },
+            withCredentials: true,
+          },
+        );
+
+        console.log("Fetched analytics:", response.data);
+
+        const formattedData = Object.entries(
+          response.data.category_average_grades,
+        ).map(([category, avgGrade]) => ({
+          career: category,
+          courses: avgGrade,
+        }));
+
+        setCareerData(formattedData);
+      } catch (error) {
+        console.error("Error fetching analytics:", error);
+      }
+    };
+
+    fetchAnalytics();
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -351,14 +397,6 @@ function Homepage() {
     return () => clearInterval(interval);
   }, []);
 
-  const careerData = [
-    { career: "Frontend Dev", courses: 3 },
-    { career: "Backend Dev", courses: 2 },
-    { career: "Fullstack Dev", courses: 4 },
-    { career: "Data Science", courses: 1 },
-    { career: "Cloud Engineer", courses: 2 },
-  ];
-
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-purple-900 via-purple-800 to-purple-700">
       <aside className="w-64 bg-purple-900 text-white flex flex-col justify-between p-6 shadow-lg fixed h-full">
@@ -486,6 +524,29 @@ function Homepage() {
                 />
               </BarChart>
             </ResponsiveContainer>
+
+            {careerRecommendation && (
+              <div className="mt-6 p-5 bg-gradient-to-r from-purple-900/50 to-purple-800/50 rounded-xl border border-purple-600/40 backdrop-blur-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xs font-semibold mb-2 text-purple-200 uppercase tracking-wider">
+                      Recommended Career Path
+                    </h3>
+                    <p className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-teal-300">
+                      {careerRecommendation}
+                    </p>
+                    <p className="mt-2 text-xs text-purple-300">
+                      Based on your performance across all categories
+                    </p>
+                  </div>
+                  <div className="ml-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-cyan-400/20 to-teal-400/20 rounded-full flex items-center justify-center">
+                      <GraduationCap className="w-6 h-6 text-cyan-300" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
