@@ -11,6 +11,7 @@ import {
   FaBook,
   FaEdit,
   FaTrash,
+  FaUser,
 } from "react-icons/fa";
 import { BookOpen, ClipboardList, GraduationCap } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -417,8 +418,14 @@ function Homepage() {
             >
               <FaBook /> Courses
             </button>
-            <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
+            <button
+              onClick={() => navigate("/Notes")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
               <FaStickyNote /> Notes
+            </button>
+            <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
+              <FaUser /> Profile
             </button>
             <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
               <FaChartBar /> Status
