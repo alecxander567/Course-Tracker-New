@@ -10,6 +10,7 @@ import {
   FaPlus,
   FaEdit,
   FaTrash,
+  FaEye,
 } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
@@ -39,6 +40,7 @@ function Notes() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [alertType, setAlertType] = useState<"success" | "error">("success");
   const [deleteNoteId, setDeleteNoteId] = useState<number | null>(null);
+  const [selectedNote, setSelectedNote] = useState(null);
 
   const handleDeleteNote = async (noteId: number) => {
     try {
@@ -187,7 +189,10 @@ function Notes() {
             <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
               <FaStickyNote /> Notes
             </button>
-            <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
+            <button
+              onClick={() => navigate("/profile")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
               <FaUser /> Profile
             </button>
             <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
@@ -221,7 +226,7 @@ function Notes() {
         <div className="w-full h-full">
           {notesBySubject.length === 0 ? (
             <div className="flex items-center justify-center text-purple-300">
-              <p>No notes yet. Click “Add New Note” to create one!</p>
+              <p>No notes yet. Click "Add New Note" to create one!</p>
             </div>
           ) : (
             notesBySubject.map((subject) => (
@@ -233,45 +238,85 @@ function Notes() {
                   <FaBook className="text-cyan-400" />
                   {subject.subject_name}
                 </h2>
+
                 {subject.notes.length === 0 ? (
                   <p className="text-purple-300 ml-2">
                     No notes for this subject.
                   </p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                    {subject.notes.map((note) => (
-                      <div
-                        key={note.id}
-                        className="bg-purple-800 p-4 rounded-lg shadow-md hover:bg-purple-700 transition flex flex-col justify-between"
-                      >
-                        <div>
-                          <h3 className="font-bold text-lg mb-2">
-                            {note.title}
-                          </h3>
-                          <p className="text-purple-200">{note.content}</p>
+                    {subject.notes
+                      .slice()
+                      .sort((a, b) => a.id - b.id)
+                      .map((note) => (
+                        <div
+                          key={note.id}
+                          className="bg-purple-800 p-4 rounded-lg shadow-md hover:bg-purple-700 transition flex flex-col justify-between"
+                        >
+                          <div>
+                            <h3 className="font-bold text-lg mb-2">
+                              {note.title}
+                            </h3>
+                            <p className="text-purple-200 line-clamp-3 overflow-hidden text-ellipsis">
+                              {note.content.length > 120
+                                ? note.content.slice(0, 120) + "..."
+                                : note.content}
+                            </p>
+                          </div>
+
+                          <div className="flex justify-end gap-2 mt-4">
+                            <button
+                              className="bg-cyan-500 hover:bg-cyan-600 text-white p-2 rounded-md transition"
+                              onClick={() => setSelectedNote(note)}
+                            >
+                              <FaEye />
+                            </button>
+                            <button
+                              className="bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-md transition"
+                              onClick={() => handleEditNote(note)}
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition"
+                              onClick={() => setDeleteNoteId(note.id)}
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex justify-end gap-2 mt-4">
-                          <button
-                            className="bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-md transition"
-                            onClick={() => handleEditNote(note)}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition"
-                            onClick={() => setDeleteNoteId(note.id)}
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 )}
               </div>
             ))
           )}
         </div>
+
+        {/* View Note Modal */}
+        {selectedNote && (
+          <div className="fixed inset-0 backdrop-blur-md flex justify-center items-center z-50">
+            <div className="bg-purple-900/90 p-6 rounded-2xl shadow-lg w-[36rem] max-h-[60vh] relative border border-purple-700 flex flex-col">
+              <h2 className="text-xl font-bold mb-3 border-b border-purple-700 pb-2">
+                {selectedNote.title}
+              </h2>
+
+              {/* Scrollable content */}
+              <div className="text-purple-100 mb-6 overflow-y-auto px-5">
+                <p className="whitespace-pre-wrap">{selectedNote.content}</p>
+              </div>
+
+              <div className="flex justify-end mt-auto">
+                <button
+                  className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition"
+                  onClick={() => setSelectedNote(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {showModal && (
