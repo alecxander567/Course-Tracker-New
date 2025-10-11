@@ -11,6 +11,7 @@ import {
   FaEdit,
   FaTrash,
   FaEye,
+  FaProjectDiagram,
 } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
@@ -190,6 +191,12 @@ function Notes() {
               <FaStickyNote /> Notes
             </button>
             <button
+              onClick={() => navigate("/projects")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
+              <FaProjectDiagram /> Projects
+            </button>
+            <button
               onClick={() => navigate("/profile")}
               className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
             >
@@ -354,13 +361,13 @@ function Notes() {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-purple-500 hover:bg-purple-600 rounded text-white"
+                className="px-4 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveNote}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-white"
+                className="px-4 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white"
               >
                 Save
               </button>

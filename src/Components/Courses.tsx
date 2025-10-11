@@ -12,6 +12,7 @@ import {
   FaBookOpen,
   FaLayerGroup,
   FaUser,
+  FaProjectDiagram,
 } from "react-icons/fa";
 
 import axios from "axios";
@@ -77,6 +78,12 @@ function Courses() {
               className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
             >
               <FaStickyNote /> Notes
+            </button>
+            <button
+              onClick={() => navigate("/projects")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
+              <FaProjectDiagram /> Projects
             </button>
             <button
               onClick={() => navigate("/profile")}

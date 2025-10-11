@@ -12,6 +12,7 @@ import {
   FaEdit,
   FaTrash,
   FaUser,
+  FaProjectDiagram,
 } from "react-icons/fa";
 import { BookOpen, ClipboardList, GraduationCap } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -425,6 +426,12 @@ function Homepage() {
               <FaStickyNote /> Notes
             </button>
             <button
+              onClick={() => navigate("/projects")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
+              <FaProjectDiagram /> Projects
+            </button>
+            <button
               onClick={() => navigate("/profile")}
               className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
             >
@@ -801,13 +808,13 @@ function Homepage() {
 
                 <div className="flex justify-end gap-2">
                   <button
-                    className="px-4 py-2 bg-purple-300 text-purple-900 rounded hover:bg-purple-400 transition"
+                    className="px-4 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white rounded transition"
                     onClick={() => setShowModal(false)}
                   >
                     Cancel
                   </button>
                   <button
-                    className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
+                    className="px-4 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white rounded  transition"
                     onClick={handleSaveSubject}
                   >
                     Save
@@ -922,13 +929,13 @@ function Homepage() {
 
                 <div className="flex justify-end gap-2">
                   <button
-                    className="px-4 py-2 bg-purple-300 text-purple-900 rounded hover:bg-purple-400 transition"
+                    className="px-4 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white transition"
                     onClick={() => setEditingSubject(null)}
                   >
                     Cancel
                   </button>
                   <button
-                    className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
+                    className="px-4 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white transition"
                     onClick={handleSaveEditedSubject}
                   >
                     Save

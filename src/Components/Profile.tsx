@@ -12,6 +12,7 @@ import {
   FaSchool,
   FaUserAlt,
   FaUpload,
+  FaProjectDiagram,
 } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 
@@ -158,6 +159,12 @@ function Profile() {
               className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
             >
               <FaStickyNote /> Notes
+            </button>
+            <button
+              onClick={() => navigate("/projects")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
+              <FaProjectDiagram /> Projects
             </button>
             <button
               onClick={() => navigate("/profile")}
@@ -341,7 +348,7 @@ function Profile() {
 
               <button
                 type="submit"
-                className="mt-4 px-8 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg transition w-full self-start"
+                className="mt-4 px-8 py-3 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition w-full self-start"
               >
                 Save Changes
               </button>
