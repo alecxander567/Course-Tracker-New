@@ -172,7 +172,10 @@ function Profile() {
             >
               <FaUser /> Profile
             </button>
-            <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
+            <button
+              onClick={() => navigate("/status")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
               <FaChartBar /> Status
             </button>
           </nav>

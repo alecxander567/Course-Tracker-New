@@ -41,7 +41,12 @@ function Courses() {
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/subjects/");
+        const response = await axios.get(
+          "http://localhost:8000/api/subjects/",
+          {
+            withCredentials: true,
+          },
+        );
         setSubjects(response.data);
       } catch (error) {
         console.error("Failed to fetch subjects:", error);
@@ -91,7 +96,10 @@ function Courses() {
             >
               <FaUser /> Profile
             </button>
-            <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
+            <button
+              onClick={() => navigate("/status")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
               <FaChartBar /> Status
             </button>
           </nav>

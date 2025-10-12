@@ -13,6 +13,7 @@ import {
   FaTrash,
   FaUser,
   FaProjectDiagram,
+  FaPlus,
 } from "react-icons/fa";
 import { BookOpen, ClipboardList, GraduationCap } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -30,7 +31,20 @@ import {
 interface Subject {
   id: number;
   name: string;
+  description?: string;
+  grade?: string;
+  semester?: string;
+  schoolYear?: string;
+  status?: string;
 }
+
+const STATIC_CATEGORIES = [
+  "Programming",
+  "Database",
+  "Networking",
+  "Security",
+  "Electives",
+];
 
 function Homepage() {
   const navigate = useNavigate();
@@ -63,16 +77,7 @@ function Homepage() {
     status: "Pending" | "Ongoing" | "Completed";
   }>(null);
 
-  const openEditSubjectModal = (
-    category: string,
-    subject: Subject & {
-      description?: string;
-      grade?: string;
-      semester?: string;
-      schoolYear?: string;
-      status?: string;
-    },
-  ) => {
+  const openEditSubjectModal = (category: string, subject: Subject) => {
     setEditingSubject({
       id: subject.id,
       category,
@@ -81,30 +86,20 @@ function Homepage() {
       grade: subject.grade ? String(subject.grade) : "",
       semester: subject.semester || "",
       schoolYear: subject.schoolYear || "",
-      status: subject.status || "Pending",
+      status:
+        (subject.status as "Pending" | "Ongoing" | "Completed") || "Pending",
     });
   };
 
-  const [allCategories, setAllCategories] = useState([]);
-  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-  const [date] = useState(new Date());
   const [alert, setAlert] = useState<{
     message: string;
     type: "success" | "error";
   } | null>(null);
 
-  const year = date.getFullYear();
-
-  const firstDay = new Date(year, date.getMonth(), 1).getDay();
-  const totalDays = new Date(year, date.getMonth() + 1, 0).getDate();
-
-  const calendarDays: (number | null)[] = Array(firstDay).fill(null);
-  for (let i = 1; i <= totalDays; i++) {
-    calendarDays.push(i);
-  }
   const [totalCourses, setTotalCourses] = useState(0);
   const [completed, setCompleted] = useState(0);
   const [ongoing, setOngoing] = useState(0);
@@ -129,22 +124,12 @@ function Homepage() {
   }, []);
 
   useEffect(() => {
-    const csrfToken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("csrftoken="))
-      ?.split("=")[1];
-
     const fetchAnalytics = async () => {
       try {
         const response = await axios.get(
           "http://localhost:8000/api/career_recommendation/",
-          {
-            headers: { "X-CSRFToken": csrfToken },
-            withCredentials: true,
-          },
+          { withCredentials: true },
         );
-
-        console.log("Fetched analytics:", response.data);
 
         const formattedData = Object.entries(
           response.data.category_average_grades,
@@ -167,9 +152,7 @@ function Homepage() {
       try {
         const response = await axios.get(
           "http://localhost:8000/api/current_user/",
-          {
-            withCredentials: true,
-          },
+          { withCredentials: true },
         );
         setUsername(response.data.username);
       } catch (error) {
@@ -179,62 +162,59 @@ function Homepage() {
     fetchUser();
   }, []);
 
+  const fetchSubjects = async () => {
+    try {
+      const { data } = await axios.get("http://localhost:8000/api/subjects/", {
+        withCredentials: true,
+      });
+
+      const grouped: Record<string, Subject[]> = {
+        Programming: [],
+        Database: [],
+        Networking: [],
+        Security: [],
+        Electives: [],
+      };
+
+      data.forEach((subj: any) => {
+        if (grouped[subj.category]) {
+          grouped[subj.category].push({
+            id: subj.id,
+            name: subj.subject_name,
+            description: subj.description,
+            grade: subj.grade,
+            semester: subj.semester,
+            schoolYear: subj.school_year,
+            status: subj.status,
+          });
+        }
+      });
+
+      const totalCount = data.length;
+      const completedCount = data.filter(
+        (s: any) => s.status === "Completed",
+      ).length;
+      const ongoingCount = data.filter(
+        (s: any) => s.status === "Ongoing",
+      ).length;
+      const pendingCount = data.filter(
+        (s: any) => s.status === "Pending",
+      ).length;
+
+      setSubjects(grouped);
+      setTotalCourses(totalCount);
+      setCompleted(completedCount);
+      setOngoing(ongoingCount);
+      setPending(pendingCount);
+    } catch (err) {
+      console.error("Failed to fetch subjects:", err);
+    }
+  };
+
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
-    const fetchSubjects = async () => {
-      try {
-        const response = await axios.get("http://localhost:8000/api/subjects/");
-        const data = response.data;
-
-        const subjectsByCategory: Record<string, Subject[]> = {
-          Programming: [],
-          Database: [],
-          Networking: [],
-          Security: [],
-          Electives: [],
-        };
-
-        data.forEach((subj: any) => {
-          if (subjectsByCategory[subj.category]) {
-            subjectsByCategory[subj.category].push({
-              id: subj.id,
-              name: subj.subject_name,
-              description: subj.description,
-              grade: subj.grade,
-              semester: subj.semester,
-              schoolYear: subj.school_year,
-              status: subj.status,
-            });
-          }
-        });
-
-        const totalCount = data.length;
-        const completedCount = data.filter(
-          (s: any) => s.status === "Completed",
-        ).length;
-        const ongoingCount = data.filter(
-          (s: any) => s.status === "Ongoing",
-        ).length;
-        const pendingCount = data.filter(
-          (s: any) => s.status === "Pending",
-        ).length;
-
-        setSubjects(subjectsByCategory);
-        setTotalCourses(totalCount);
-        setCompleted(completedCount);
-        setOngoing(ongoingCount);
-        setPending(pendingCount);
-      } catch (error) {
-        console.error("Failed to fetch subjects:", error);
-      }
-    };
-
     fetchSubjects();
-
-    intervalId = setInterval(fetchSubjects, 5000);
-
-    return () => clearInterval(intervalId);
+    const interval = setInterval(fetchSubjects, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogout = async () => {
@@ -260,7 +240,6 @@ function Homepage() {
 
     try {
       const payload = {
-        user: 1,
         category: newSubjectDetails.category,
         subject_name: newSubjectDetails.name,
         description: newSubjectDetails.description,
@@ -275,6 +254,7 @@ function Homepage() {
       const response = await axios.post(
         "http://localhost:8000/api/subjects/add/",
         payload,
+        { withCredentials: true },
       );
 
       setSubjects((prev) => ({
@@ -282,13 +262,12 @@ function Homepage() {
         [newSubjectDetails.category]: [
           ...(prev[newSubjectDetails.category] || []),
           {
-            id: response.data.id,
+            id: response.data.subject.id,
             name: newSubjectDetails.name,
             description: newSubjectDetails.description,
             grade: newSubjectDetails.grade,
             semester: newSubjectDetails.semester,
             schoolYear: newSubjectDetails.schoolYear,
-            category: newSubjectDetails.category,
           },
         ],
       }));
@@ -349,7 +328,6 @@ function Homepage() {
           grade: updatedSubject.grade,
           semester: updatedSubject.semester,
           schoolYear: updatedSubject.school_year,
-          category: updatedSubject.category,
           status: updatedSubject.status,
         });
 
@@ -365,39 +343,6 @@ function Homepage() {
       setTimeout(() => setAlert(null), 3000);
     }
   };
-
-  const fetchSubjects = async () => {
-    try {
-      const { data } = await axios.get("http://localhost:8000/api/subjects/");
-      const grouped: Record<string, any[]> = {};
-      data.forEach((subj: any) => {
-        if (!grouped[subj.category]) grouped[subj.category] = [];
-        grouped[subj.category].push({
-          id: subj.id,
-          name: subj.subject_name,
-          description: subj.description,
-          grade: subj.grade,
-          semester: subj.semester,
-          schoolYear: subj.school_year,
-          category: subj.category,
-        });
-      });
-      setSubjects(grouped);
-
-      const categories = Array.from(new Set(data.map((s: any) => s.category)));
-      setAllCategories(categories);
-    } catch (err) {
-      console.error("Failed to fetch subjects:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchSubjects();
-
-    const interval = setInterval(fetchSubjects, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-purple-900 via-purple-800 to-purple-700">
@@ -437,7 +382,10 @@ function Homepage() {
             >
               <FaUser /> Profile
             </button>
-            <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
+            <button
+              onClick={() => navigate("/status")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
               <FaChartBar /> Status
             </button>
           </nav>
@@ -571,7 +519,7 @@ function Homepage() {
           <h2 className="text-xl font-semibold mb-4 text-white">My Subjects</h2>
           <div className="p-6 rounded-2xl shadow-lg bg-gradient-to-r from-purple-700 via-purple-800 to-purple-900 text-white">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 grid-flow-dense">
-              {allCategories.map((category) => (
+              {STATIC_CATEGORIES.map((category) => (
                 <div
                   key={category}
                   className="relative p-4 rounded-lg bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 shadow hover:shadow-lg transition flex flex-col h-70"
@@ -626,7 +574,7 @@ function Homepage() {
                 </div>
               ))}
 
-              {allCategories.length % 2 !== 0 && (
+              {STATIC_CATEGORIES.length % 2 !== 0 && (
                 <div className="p-4 rounded-lg bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 shadow flex flex-col h-70">
                   <h3 className="font-bold mb-2 text-center">Calendar</h3>
                   <div className="flex-1">
@@ -707,8 +655,8 @@ function Homepage() {
           {showModal && (
             <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/20">
               <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 rounded-xl p-6 w-96 text-white shadow-lg">
-                <h3 className="text-lg font-bold mb-4 text-center">
-                  Add New Subject
+                <h3 className="text-lg font-bold mb-4 text-center flex items-center justify-center gap-2">
+                  <FaPlus className="text-cyan-400" /> Add New Subject
                 </h3>
                 <select
                   className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
@@ -720,7 +668,7 @@ function Homepage() {
                     }))
                   }
                 >
-                  {Object.keys(subjects).map((cat) => (
+                  {STATIC_CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
                     </option>
@@ -808,13 +756,13 @@ function Homepage() {
 
                 <div className="flex justify-end gap-2">
                   <button
-                    className="px-4 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white rounded transition"
+                    className="px-4 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white transition"
                     onClick={() => setShowModal(false)}
                   >
                     Cancel
                   </button>
                   <button
-                    className="px-4 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white rounded  transition"
+                    className="px-4 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white transition"
                     onClick={handleSaveSubject}
                   >
                     Save
@@ -827,13 +775,13 @@ function Homepage() {
           {editingSubject && (
             <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/20">
               <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 rounded-xl p-6 w-96 text-white shadow-lg">
-                <h3 className="text-lg font-bold mb-4 text-center">
-                  Edit Subject
+                <h3 className="text-lg font-bold mb-4 text-center flex items-center justify-center gap-2">
+                  <FaEdit className="text-yellow-400" /> Edit Subject
                 </h3>
 
                 <select
                   className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={editingSubject.category || allCategories[0]} // fallback to first category
+                  value={editingSubject.category}
                   onChange={(e) =>
                     setEditingSubject({
                       ...editingSubject,
@@ -841,7 +789,7 @@ function Homepage() {
                     })
                   }
                 >
-                  {allCategories.map((cat) => (
+                  {STATIC_CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
                     </option>
@@ -918,7 +866,10 @@ function Homepage() {
                   onChange={(e) =>
                     setEditingSubject({
                       ...editingSubject,
-                      status: e.target.value,
+                      status: e.target.value as
+                        | "Pending"
+                        | "Ongoing"
+                        | "Completed",
                     })
                   }
                 >
@@ -948,8 +899,8 @@ function Homepage() {
           {showDeleteModal && deleteTarget && (
             <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/20">
               <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 rounded-xl p-6 w-96 text-white shadow-lg">
-                <h3 className="text-lg font-bold mb-4 text-center">
-                  Delete Subject
+                <h3 className="text-lg font-bold mb-4 text-center flex items-center justify-center gap-2">
+                  <FaTrash className="text-red-400" /> Delete Subject
                 </h3>
                 <p className="mb-6 text-center">
                   Are you sure you want to delete{" "}
@@ -998,9 +949,7 @@ function Homepage() {
       </main>
 
       {alert && (
-        <div
-          className={`fixed inset-0 flex items-center justify-center z-50 transition-all duration-300`}
-        >
+        <div className="fixed inset-0 flex items-center justify-center z-50 transition-all duration-300">
           <div
             className={`px-6 py-4 rounded-xl shadow-lg text-white text-lg transform transition-all duration-300 ${
               alert.type === "success"

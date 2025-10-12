@@ -5,6 +5,7 @@ import Courses from "./Components/Courses";
 import Notes from "./Components/Notes";
 import Projects from "./Components/Projects";
 import Profile from "./Components/Profile";
+import Status from "./Components/Status";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/Notes" element={<Notes />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/status" element={<Status />} />
       </Routes>
     </Router>
   );

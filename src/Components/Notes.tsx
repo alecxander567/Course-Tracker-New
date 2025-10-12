@@ -202,7 +202,10 @@ function Notes() {
             >
               <FaUser /> Profile
             </button>
-            <button className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left">
+            <button
+              onClick={() => navigate("/status")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
               <FaChartBar /> Status
             </button>
           </nav>
@@ -300,7 +303,6 @@ function Notes() {
           )}
         </div>
 
-        {/* View Note Modal */}
         {selectedNote && (
           <div className="fixed inset-0 backdrop-blur-md flex justify-center items-center z-50">
             <div className="bg-purple-900/90 p-6 rounded-2xl shadow-lg w-[36rem] max-h-[60vh] relative border border-purple-700 flex flex-col">
@@ -329,8 +331,9 @@ function Notes() {
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
           <div className="bg-gradient-to-br from-purple-800 via-purple-900 to-purple-950 text-white rounded-2xl p-6 w-[28rem] shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Add New Note</h2>
-
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <FaPlus /> Add New Note
+            </h2>
             <select
               value={selectedSubjectId}
               onChange={(e) => setSelectedSubjectId(e.target.value)}
@@ -379,8 +382,9 @@ function Notes() {
       {editingNote && (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
           <div className="bg-gradient-to-br from-purple-800 via-purple-900 to-purple-950 text-white rounded-2xl p-6 w-[28rem] shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Edit Note</h2>
-
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <FaEdit className="text-yellow-400" /> Edit Note
+            </h2>
             <input
               type="text"
               value={editedTitle}
@@ -415,7 +419,9 @@ function Notes() {
       {deleteNoteId && (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
           <div className="bg-gradient-to-br from-purple-800 via-purple-900 to-purple-950 text-white rounded-2xl p-6 w-96 shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <FaTrash className="text-red-400" /> Confirm Delete
+            </h2>
             <p className="mb-6">Are you sure you want to delete this note?</p>
             <div className="flex justify-end gap-2">
               <button
