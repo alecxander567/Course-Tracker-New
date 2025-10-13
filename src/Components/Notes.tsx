@@ -310,7 +310,6 @@ function Notes() {
                 {selectedNote.title}
               </h2>
 
-              {/* Scrollable content */}
               <div className="text-purple-100 mb-6 overflow-y-auto px-5">
                 <p className="whitespace-pre-wrap">{selectedNote.content}</p>
               </div>
@@ -407,7 +406,7 @@ function Notes() {
               </button>
               <button
                 onClick={submitEdit}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-white"
+                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 rounded text-white"
               >
                 Save
               </button>
