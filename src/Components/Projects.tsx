@@ -276,8 +276,8 @@ function Projects() {
 
       {showModal && (
         <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-purple-800 p-8 rounded-xl w-[28rem] max-w-3xl shadow-2xl relative border border-purple-700">
-            <h2 className="text-2xl font-bold mb-6 text-white flex items-center gap-3">
+          <div className="bg-purple-800 p-8 rounded-xl w-10/12 max-w-3xl shadow-2xl relative border border-purple-700">
+            <h2 className="text-2xl font-bold mb-5 text-white flex items-center gap-3">
               {editProjectId ? (
                 <>
                   <FaEdit className="text-yellow-400" /> Edit Project
@@ -294,19 +294,20 @@ function Projects() {
                 placeholder="Project Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white placeholder-gray-300"
+                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white placeholder-gray-300 text-base"
                 required
               />
               <textarea
                 placeholder="Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white placeholder-gray-300"
+                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white placeholder-gray-300 text-base"
+                rows={5}
               />
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as any)}
-                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white"
+                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white text-base"
               >
                 <option value="NOT_STARTED">Not Started</option>
                 <option value="IN_PROGRESS">In Progress</option>
@@ -315,7 +316,7 @@ function Projects() {
               <div className="flex justify-end gap-3">
                 <button
                   type="button"
-                  className="px-5 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white"
+                  className="px-5 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white text-base"
                   onClick={() => {
                     setShowModal(false);
                     setEditProjectId(null);
@@ -328,7 +329,7 @@ function Projects() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white"
+                  className="px-5 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white text-base"
                 >
                   Save
                 </button>
@@ -339,7 +340,7 @@ function Projects() {
       )}
 
       {showDeleteModal && deleteTarget && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/20">
+        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
           <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 rounded-xl p-6 w-96 text-white shadow-lg">
             <h3 className="text-lg font-bold mb-4 text-center flex items-center justify-center gap-2">
               <FaTrash className="text-red-400" /> Delete Project

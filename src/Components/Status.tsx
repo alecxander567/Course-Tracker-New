@@ -10,6 +10,7 @@ import {
   FaEdit,
   FaTrash,
   FaInfoCircle,
+  FaEye,
 } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +18,8 @@ import { useEffect, useState } from "react";
 
 function Status() {
   const navigate = useNavigate();
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [statuses, setStatuses] = useState([]);
   const [title, setTitle] = useState("");
@@ -119,7 +122,13 @@ function Status() {
         );
 
         if (response.data.success) {
-          setStatuses(response.data.statuses);
+          setStatuses(
+            response.data.statuses.sort(
+              (a, b) =>
+                new Date(a.created_at).getTime() -
+                new Date(b.created_at).getTime(),
+            ),
+          );
         }
       } catch (error) {
         console.error("Failed to fetch statuses:", error);
@@ -274,6 +283,18 @@ function Status() {
                 </span>
 
                 <div className="flex gap-2">
+                  {/* 👁 View button */}
+                  <button
+                    className="p-2 bg-blue-500 rounded hover:bg-blue-600 text-white text-sm flex items-center justify-center"
+                    onClick={() => {
+                      setSelectedItem(item);
+                      setShowViewModal(true);
+                    }}
+                    title="View"
+                  >
+                    <FaEye />
+                  </button>
+
                   <button
                     className="p-2 bg-yellow-500 rounded hover:bg-yellow-600 text-white text-sm flex items-center justify-center"
                     onClick={() => handleEdit(item)}
@@ -281,6 +302,7 @@ function Status() {
                   >
                     <FaEdit />
                   </button>
+
                   <button
                     className="p-2 bg-red-500 rounded hover:bg-red-600 text-white text-sm flex items-center justify-center"
                     onClick={() => {
@@ -298,10 +320,40 @@ function Status() {
         </div>
       </main>
 
+      {/* 👁 View Modal */}
+      {showViewModal && selectedItem && (
+        <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-purple-900/80 p-8 rounded-xl w-11/12 md:w-1/2 shadow-2xl text-white backdrop-blur-lg border border-purple-700">
+            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+              <FaInfoCircle className="text-cyan-400" /> {selectedItem.title}
+            </h2>
+
+            <p className="text-xs text-gray-300 mb-4">
+              {new Date(selectedItem.created_at).toLocaleDateString()}{" "}
+              {new Date(selectedItem.created_at).toLocaleTimeString()}
+            </p>
+
+            {/* 📝 Preserve formatting */}
+            <p className="text-gray-100 mb-6 whitespace-pre-wrap">
+              {selectedItem.description}
+            </p>
+
+            <div className="flex justify-end">
+              <button
+                className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-700 transition"
+                onClick={() => setShowViewModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showModal && (
         <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-purple-800 p-8 rounded-xl w-[28rem] max-w-3xl shadow-2xl relative border border-purple-700">
-            <h2 className="text-2xl font-bold mb-6 text-white flex items-center gap-3">
+          <div className="bg-purple-800 p-8 rounded-xl w-10/12 max-w-3xl shadow-2xl relative border border-purple-700">
+            <h2 className="text-2xl font-bold mb-5 text-white flex items-center gap-3">
               {editingStatus ? (
                 <>
                   <FaEdit className="text-yellow-400" /> Edit Status
@@ -318,19 +370,20 @@ function Status() {
                 placeholder="Status Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white placeholder-gray-300"
+                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white placeholder-gray-300 text-base"
                 required
               />
               <textarea
                 placeholder="Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white placeholder-gray-300"
+                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white placeholder-gray-300 text-base"
+                rows={5}
               />
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white"
+                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white text-base"
               >
                 <option value="ONGOING">Ongoing</option>
                 <option value="COMPLETED">Completed</option>
@@ -338,10 +391,10 @@ function Status() {
               <div className="flex justify-end gap-3">
                 <button
                   type="button"
-                  className="px-5 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white"
+                  className="px-5 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white text-base"
                   onClick={() => {
                     setShowModal(false);
-                    setEditingStatus(null); 
+                    setEditingStatus(null);
                     setTitle("");
                     setDescription("");
                     setStatus("ONGOING");
@@ -351,7 +404,7 @@ function Status() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white"
+                  className="px-5 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white text-base"
                 >
                   {editingStatus ? "Update" : "Save"}
                 </button>
@@ -362,7 +415,7 @@ function Status() {
       )}
 
       {showDeleteModal && deleteTarget && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/20">
+        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
           <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 rounded-xl p-6 w-96 text-white shadow-lg">
             <h3 className="text-lg font-bold mb-4 text-center">
               Delete Status

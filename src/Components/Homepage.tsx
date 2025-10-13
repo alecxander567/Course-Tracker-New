@@ -652,242 +652,193 @@ function Homepage() {
             </div>
           </div>
 
-          {showModal && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/20">
-              <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 rounded-xl p-6 w-96 text-white shadow-lg">
-                <h3 className="text-lg font-bold mb-4 text-center flex items-center justify-center gap-2">
-                  <FaPlus className="text-cyan-400" /> Add New Subject
-                </h3>
-                <select
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={newSubjectDetails.category}
-                  onChange={(e) =>
-                    setNewSubjectDetails((prev) => ({
-                      ...prev,
-                      category: e.target.value,
-                    }))
-                  }
-                >
-                  {STATIC_CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+          {(showModal || editingSubject) && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
+              <div className="bg-purple-800 p-8 rounded-xl w-10/12 max-w-3xl shadow-2xl relative border border-purple-700">
+                <h2 className="text-2xl font-bold mb-5 flex items-center gap-3 text-white">
+                  {editingSubject ? (
+                    <>
+                      <FaEdit className="text-yellow-400" /> Edit Subject
+                    </>
+                  ) : (
+                    <>
+                      <FaPlus className="text-cyan-400" /> Add New Subject
+                    </>
+                  )}
+                </h2>
+
+                {/* Category select only for Add Subject */}
+                {!editingSubject && (
+                  <select
+                    className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
+                    value={newSubjectDetails.category}
+                    onChange={(e) =>
+                      setNewSubjectDetails((prev) => ({
+                        ...prev,
+                        category: e.target.value,
+                      }))
+                    }
+                  >
+                    {STATIC_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                )}
 
                 <input
                   type="text"
                   placeholder="Subject Name"
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={newSubjectDetails.name}
-                  onChange={(e) =>
-                    setNewSubjectDetails((prev) => ({
-                      ...prev,
-                      name: e.target.value,
-                    }))
+                  value={
+                    editingSubject
+                      ? editingSubject.name
+                      : newSubjectDetails.name
                   }
+                  onChange={(e) =>
+                    editingSubject
+                      ? setEditingSubject({
+                          ...editingSubject,
+                          name: e.target.value,
+                        })
+                      : setNewSubjectDetails({
+                          ...newSubjectDetails,
+                          name: e.target.value,
+                        })
+                  }
+                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
                 />
 
                 <textarea
                   placeholder="Description"
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={newSubjectDetails.description}
-                  onChange={(e) =>
-                    setNewSubjectDetails((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
+                  value={
+                    editingSubject
+                      ? editingSubject.description
+                      : newSubjectDetails.description
                   }
+                  onChange={(e) =>
+                    editingSubject
+                      ? setEditingSubject({
+                          ...editingSubject,
+                          description: e.target.value,
+                        })
+                      : setNewSubjectDetails({
+                          ...newSubjectDetails,
+                          description: e.target.value,
+                        })
+                  }
+                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
+                  rows={5}
                 />
 
                 <input
                   type="text"
                   placeholder="Grade"
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={newSubjectDetails.grade}
-                  onChange={(e) =>
-                    setNewSubjectDetails((prev) => ({
-                      ...prev,
-                      grade: e.target.value,
-                    }))
+                  value={
+                    editingSubject
+                      ? editingSubject.grade
+                      : newSubjectDetails.grade
                   }
+                  onChange={(e) =>
+                    editingSubject
+                      ? setEditingSubject({
+                          ...editingSubject,
+                          grade: e.target.value,
+                        })
+                      : setNewSubjectDetails({
+                          ...newSubjectDetails,
+                          grade: e.target.value,
+                        })
+                  }
+                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
                 />
 
                 <input
                   type="text"
                   placeholder="Semester"
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={newSubjectDetails.semester}
-                  onChange={(e) =>
-                    setNewSubjectDetails((prev) => ({
-                      ...prev,
-                      semester: e.target.value,
-                    }))
+                  value={
+                    editingSubject
+                      ? editingSubject.semester
+                      : newSubjectDetails.semester
                   }
+                  onChange={(e) =>
+                    editingSubject
+                      ? setEditingSubject({
+                          ...editingSubject,
+                          semester: e.target.value,
+                        })
+                      : setNewSubjectDetails({
+                          ...newSubjectDetails,
+                          semester: e.target.value,
+                        })
+                  }
+                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
                 />
 
                 <input
                   type="text"
                   placeholder="School Year"
-                  className="w-full mb-4 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={newSubjectDetails.schoolYear}
-                  onChange={(e) =>
-                    setNewSubjectDetails((prev) => ({
-                      ...prev,
-                      schoolYear: e.target.value,
-                    }))
+                  value={
+                    editingSubject
+                      ? editingSubject.schoolYear
+                      : newSubjectDetails.schoolYear
                   }
+                  onChange={(e) =>
+                    editingSubject
+                      ? setEditingSubject({
+                          ...editingSubject,
+                          schoolYear: e.target.value,
+                        })
+                      : setNewSubjectDetails({
+                          ...newSubjectDetails,
+                          schoolYear: e.target.value,
+                        })
+                  }
+                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
                 />
 
                 <select
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={newSubjectDetails.status}
-                  onChange={(e) =>
-                    setNewSubjectDetails((prev) => ({
-                      ...prev,
-                      status: e.target.value,
-                    }))
+                  value={
+                    editingSubject
+                      ? editingSubject.status
+                      : newSubjectDetails.status
                   }
+                  onChange={(e) =>
+                    editingSubject
+                      ? setEditingSubject({
+                          ...editingSubject,
+                          status: e.target.value,
+                        })
+                      : setNewSubjectDetails({
+                          ...newSubjectDetails,
+                          status: e.target.value,
+                        })
+                  }
+                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
                 >
                   <option value="Pending">Pending</option>
                   <option value="Ongoing">Ongoing</option>
                   <option value="Completed">Completed</option>
                 </select>
 
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-4">
                   <button
-                    className="px-4 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white transition"
-                    onClick={() => setShowModal(false)}
+                    onClick={() =>
+                      editingSubject
+                        ? setEditingSubject(null)
+                        : setShowModal(false)
+                    }
+                    className="px-5 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white text-base"
                   >
                     Cancel
                   </button>
                   <button
-                    className="px-4 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white transition"
-                    onClick={handleSaveSubject}
-                  >
-                    Save
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {editingSubject && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/20">
-              <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 rounded-xl p-6 w-96 text-white shadow-lg">
-                <h3 className="text-lg font-bold mb-4 text-center flex items-center justify-center gap-2">
-                  <FaEdit className="text-yellow-400" /> Edit Subject
-                </h3>
-
-                <select
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={editingSubject.category}
-                  onChange={(e) =>
-                    setEditingSubject({
-                      ...editingSubject,
-                      category: e.target.value,
-                    })
-                  }
-                >
-                  {STATIC_CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-
-                <input
-                  type="text"
-                  placeholder="Subject Name"
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={editingSubject.name}
-                  onChange={(e) =>
-                    setEditingSubject({
-                      ...editingSubject,
-                      name: e.target.value,
-                    })
-                  }
-                />
-
-                <textarea
-                  placeholder="Description"
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={editingSubject.description}
-                  onChange={(e) =>
-                    setEditingSubject({
-                      ...editingSubject,
-                      description: e.target.value,
-                    })
-                  }
-                />
-
-                <input
-                  type="text"
-                  placeholder="Grade"
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={editingSubject.grade}
-                  onChange={(e) =>
-                    setEditingSubject({
-                      ...editingSubject,
-                      grade: e.target.value,
-                    })
-                  }
-                />
-
-                <input
-                  type="text"
-                  placeholder="Semester"
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={editingSubject.semester}
-                  onChange={(e) =>
-                    setEditingSubject({
-                      ...editingSubject,
-                      semester: e.target.value,
-                    })
-                  }
-                />
-
-                <input
-                  type="text"
-                  placeholder="School Year"
-                  className="w-full mb-4 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={editingSubject.schoolYear}
-                  onChange={(e) =>
-                    setEditingSubject({
-                      ...editingSubject,
-                      schoolYear: e.target.value,
-                    })
-                  }
-                />
-
-                <select
-                  className="w-full mb-2 p-2 rounded border border-purple-400 bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  value={editingSubject.status}
-                  onChange={(e) =>
-                    setEditingSubject({
-                      ...editingSubject,
-                      status: e.target.value as
-                        | "Pending"
-                        | "Ongoing"
-                        | "Completed",
-                    })
-                  }
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Ongoing">Ongoing</option>
-                  <option value="Completed">Completed</option>
-                </select>
-
-                <div className="flex justify-end gap-2">
-                  <button
-                    className="px-4 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white transition"
-                    onClick={() => setEditingSubject(null)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white transition"
-                    onClick={handleSaveEditedSubject}
+                    onClick={
+                      editingSubject
+                        ? handleSaveEditedSubject
+                        : handleSaveSubject
+                    }
+                    className="px-5 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white text-base"
                   >
                     Save
                   </button>
@@ -897,7 +848,7 @@ function Homepage() {
           )}
 
           {showDeleteModal && deleteTarget && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/20">
+            <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
               <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 rounded-xl p-6 w-96 text-white shadow-lg">
                 <h3 className="text-lg font-bold mb-4 text-center flex items-center justify-center gap-2">
                   <FaTrash className="text-red-400" /> Delete Subject

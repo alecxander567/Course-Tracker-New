@@ -304,19 +304,21 @@ function Notes() {
         </div>
 
         {selectedNote && (
-          <div className="fixed inset-0 backdrop-blur-md flex justify-center items-center z-50">
-            <div className="bg-purple-900/90 p-6 rounded-2xl shadow-lg w-[36rem] max-h-[60vh] relative border border-purple-700 flex flex-col">
-              <h2 className="text-xl font-bold mb-3 border-b border-purple-700 pb-2">
+          <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="bg-purple-800 p-8 rounded-xl w-10/12 max-w-3xl shadow-2xl relative border border-purple-700 flex flex-col max-h-[70vh]">
+              <h2 className="text-2xl font-bold mb-5 border-b border-purple-700 pb-2 text-white">
                 {selectedNote.title}
               </h2>
 
-              <div className="text-purple-100 mb-6 overflow-y-auto px-5">
-                <p className="whitespace-pre-wrap">{selectedNote.content}</p>
+              <div className="text-gray-100 mb-6 overflow-y-auto px-4">
+                <p className="whitespace-pre-wrap text-base">
+                  {selectedNote.content}
+                </p>
               </div>
 
               <div className="flex justify-end mt-auto">
                 <button
-                  className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition"
+                  className="bg-gray-600 hover:bg-gray-700 px-5 py-2 rounded text-white text-base transition"
                   onClick={() => setSelectedNote(null)}
                 >
                   Close
@@ -327,86 +329,72 @@ function Notes() {
         )}
       </main>
 
-      {showModal && (
+      {(showModal || editingNote) && (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
-          <div className="bg-gradient-to-br from-purple-800 via-purple-900 to-purple-950 text-white rounded-2xl p-6 w-[28rem] shadow-lg">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <FaPlus /> Add New Note
+          <div className="bg-purple-800 p-8 rounded-xl w-10/12 max-w-3xl shadow-2xl relative border border-purple-700">
+            <h2 className="text-2xl font-bold mb-5 flex items-center gap-3 text-white">
+              {editingNote ? (
+                <>
+                  <FaEdit className="text-yellow-400" /> Edit Note
+                </>
+              ) : (
+                <>
+                  <FaPlus className="text-cyan-400" /> Add New Note
+                </>
+              )}
             </h2>
-            <select
-              value={selectedSubjectId}
-              onChange={(e) => setSelectedSubjectId(e.target.value)}
-              className="w-full mb-4 p-2 rounded bg-purple-700 text-white border border-purple-600"
-            >
-              {subjects.map((sub) => (
-                <option key={sub.id} value={sub.id}>
-                  {sub.subject_name}
-                </option>
-              ))}
-            </select>
+
+            {/* Subject selector only for Add Note */}
+            {!editingNote && (
+              <select
+                value={selectedSubjectId}
+                onChange={(e) => setSelectedSubjectId(e.target.value)}
+                className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
+              >
+                {subjects.map((sub) => (
+                  <option key={sub.id} value={sub.id}>
+                    {sub.subject_name}
+                  </option>
+                ))}
+              </select>
+            )}
 
             <input
               type="text"
               placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full mb-4 p-2 rounded bg-purple-700 text-white border border-purple-600"
+              value={editingNote ? editedTitle : title}
+              onChange={(e) =>
+                editingNote
+                  ? setEditedTitle(e.target.value)
+                  : setTitle(e.target.value)
+              }
+              className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
             />
 
             <textarea
               placeholder="Content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full mb-4 p-2 rounded bg-purple-700 text-white border border-purple-600 h-32"
+              value={editingNote ? editedContent : content}
+              onChange={(e) =>
+                editingNote
+                  ? setEditedContent(e.target.value)
+                  : setContent(e.target.value)
+              }
+              className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
+              rows={6}
             />
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-3">
               <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white"
+                onClick={() => {
+                  editingNote ? setEditingNote(null) : setShowModal(false);
+                }}
+                className="px-5 py-2 bg-gray-500 rounded hover:bg-gray-600 text-white text-base"
               >
                 Cancel
               </button>
               <button
-                onClick={handleSaveNote}
-                className="px-4 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {editingNote && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
-          <div className="bg-gradient-to-br from-purple-800 via-purple-900 to-purple-950 text-white rounded-2xl p-6 w-[28rem] shadow-lg">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <FaEdit className="text-yellow-400" /> Edit Note
-            </h2>
-            <input
-              type="text"
-              value={editedTitle}
-              onChange={(e) => setEditedTitle(e.target.value)}
-              className="w-full mb-3 p-2 rounded bg-purple-700 text-white border border-purple-600"
-            />
-
-            <textarea
-              value={editedContent}
-              onChange={(e) => setEditedContent(e.target.value)}
-              className="w-full mb-3 p-2 rounded bg-purple-700 text-white border border-purple-600 h-32"
-            />
-
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setEditingNote(null)}
-                className="px-4 py-2 bg-purple-500 hover:bg-purple-600 rounded text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={submitEdit}
-                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 rounded text-white"
+                onClick={editingNote ? submitEdit : handleSaveNote}
+                className="px-5 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white text-base"
               >
                 Save
               </button>
