@@ -12,15 +12,18 @@ A personal productivity tool built with React, TypeScript, and Vite to help stud
 
 ## 🛠️ Tech Stack
 
-| Technology | Purpose |
-|-----------|---------|
-| **React** | UI development |
-| **TypeScript** | Type-safe JavaScript |
-| **Vite** | Fast build tool and dev server |
-| **Python** | Backend programming language |
-| **Django** | Web framework for backend APIs |
-| **MySQL** | Relational database management |
-| **ESLint** | Code linting and style checks |
+### Frontend
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
+
+### Backend
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+
+## 🚀 Getting Started
 
 ## 🎨 Features in Detail
 
@@ -38,7 +41,7 @@ A personal productivity tool built with React, TypeScript, and Vite to help stud
 - AI-powered career recommendations based on your academic profile
 - Explore different career options aligned with your coursework
 - Get insights into required skills and qualifications
-  
+
 ## 🙏 Acknowledgments
 
 - Built with React, TypeScript, and Vite for optimal performance
