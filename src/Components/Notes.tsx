@@ -28,12 +28,17 @@ interface SubjectNotes {
   notes: Note[];
 }
 
+interface Subject {
+  id: number;
+  subject_name: string;
+}
+
 function Notes() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [subjects, setSubjects] = useState([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedSubjectId, setSelectedSubjectId] = useState("");
   const [notesBySubject, setNotesBySubject] = useState<SubjectNotes[]>([]);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
@@ -42,7 +47,7 @@ function Notes() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [alertType, setAlertType] = useState<"success" | "error">("success");
   const [deleteNoteId, setDeleteNoteId] = useState<number | null>(null);
-  const [selectedNote, setSelectedNote] = useState(null);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   const handleDeleteNote = async (noteId: number) => {
     try {
@@ -124,8 +129,16 @@ function Notes() {
         const res = await axios.get("http://localhost:8000/api/subjects/", {
           withCredentials: true,
         });
-        setSubjects(res.data);
-        if (res.data.length > 0) setSelectedSubjectId(res.data[0].id);
+
+        // Check if the response has the expected structure
+        const subjectsData = res.data?.subjects || res.data || [];
+
+        setSubjects(subjectsData);
+
+        // Only set selectedSubjectId if we have subjects
+        if (subjectsData.length > 0) {
+          setSelectedSubjectId(subjectsData[0].id.toString());
+        }
       } catch (err) {
         console.error("Failed to fetch subjects:", err);
       }
@@ -133,7 +146,40 @@ function Notes() {
     fetchSubjects();
   }, []);
 
+  const handleAddNoteClick = () => {
+    // Check if there are subjects before opening modal
+    if (subjects.length === 0) {
+      setAlertMessage("Please add a subject first before creating notes.");
+      setAlertType("error");
+      setTimeout(() => setAlertMessage(null), 3000);
+      return;
+    }
+    setShowModal(true);
+  };
+
   const handleSaveNote = async () => {
+    // Validate inputs
+    if (!title.trim()) {
+      setAlertMessage("Please enter a title.");
+      setAlertType("error");
+      setTimeout(() => setAlertMessage(null), 3000);
+      return;
+    }
+
+    if (!content.trim()) {
+      setAlertMessage("Please enter content.");
+      setAlertType("error");
+      setTimeout(() => setAlertMessage(null), 3000);
+      return;
+    }
+
+    if (!selectedSubjectId) {
+      setAlertMessage("Please select a subject.");
+      setAlertType("error");
+      setTimeout(() => setAlertMessage(null), 3000);
+      return;
+    }
+
     try {
       await axios.post(
         "http://localhost:8000/api/notes/",
@@ -206,15 +252,12 @@ function Notes() {
             >
               <FaUser /> Profile
             </button>
-
-            {/* 🆕 Added Guide Menu */}
             <button
               onClick={() => navigate("/guide")}
               className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
             >
               <FaInfoCircle /> Guide
             </button>
-
             <button
               onClick={() => navigate("/status")}
               className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
@@ -240,7 +283,7 @@ function Notes() {
           </h1>
           <button
             className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg shadow-md transition"
-            onClick={() => setShowModal(true)}
+            onClick={handleAddNoteClick}
           >
             <FaPlus /> Add New Note
           </button>
@@ -358,7 +401,7 @@ function Notes() {
             </h2>
 
             {/* Subject selector only for Add Note */}
-            {!editingNote && (
+            {!editingNote && subjects.length > 0 && (
               <select
                 value={selectedSubjectId}
                 onChange={(e) => setSelectedSubjectId(e.target.value)}
