@@ -13,11 +13,32 @@ import {
   FaLayerGroup,
   FaUser,
   FaProjectDiagram,
+  FaInfoCircle,
 } from "react-icons/fa";
 
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+
+interface GuideType {
+  id: number;
+  semester?: string | null;
+  status: "ONGOING" | "COMPLETED";
+  category: "LOW" | "MODERATE" | "HIGH";
+  date: string;
+  notes?: string | null;
+}
+
+interface SubjectType {
+  id: number;
+  subject_name: string;
+  category: string;
+  status: "Pending" | "Ongoing" | "Completed";
+  grade?: string | null;
+  semester?: string | null;
+  school_year?: string | null;
+  guides: GuideType[];
+}
 
 function Courses() {
   const navigate = useNavigate();
@@ -41,13 +62,14 @@ function Courses() {
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8000/api/subjects/",
-          {
-            withCredentials: true,
-          },
-        );
-        setSubjects(response.data);
+        const response = await axios.get<{
+          success: boolean;
+          subjects: SubjectType[];
+        }>("http://localhost:8000/api/subjects/", { withCredentials: true });
+
+        if (response.data.success) {
+          setSubjects(response.data.subjects);
+        }
       } catch (error) {
         console.error("Failed to fetch subjects:", error);
       } finally {
@@ -96,6 +118,15 @@ function Courses() {
             >
               <FaUser /> Profile
             </button>
+
+            {/* 🆕 Added Guide Menu */}
+            <button
+              onClick={() => navigate("/guide")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
+              <FaInfoCircle /> Guide
+            </button>
+
             <button
               onClick={() => navigate("/status")}
               className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"

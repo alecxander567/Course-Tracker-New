@@ -6,6 +6,7 @@ import Notes from "./Components/Notes";
 import Projects from "./Components/Projects";
 import Profile from "./Components/Profile";
 import Status from "./Components/Status";
+import Guide from "./Components/Guide";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/projects" element={<Projects />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/status" element={<Status />} />
+        <Route path="/guide" element={<Guide />} />
       </Routes>
     </Router>
   );

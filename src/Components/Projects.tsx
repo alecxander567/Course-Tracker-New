@@ -10,6 +10,7 @@ import {
   FaEdit,
   FaTrash,
   FaPlusCircle,
+  FaInfoCircle,
 } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -185,6 +186,15 @@ function Projects() {
             >
               <FaUser /> Profile
             </button>
+
+            {/* 🆕 Added Guide Menu */}
+            <button
+              onClick={() => navigate("/guide")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
+              <FaInfoCircle /> Guide
+            </button>
+
             <button
               onClick={() => navigate("/status")}
               className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"

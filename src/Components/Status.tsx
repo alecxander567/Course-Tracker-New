@@ -16,23 +16,35 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+interface StatusItem {
+  id: number;
+  title: string;
+  description: string;
+  status: "ONGOING" | "COMPLETED";
+  created_at: string;
+}
+
+type AlertType = "success" | "error";
+
 function Status() {
   const navigate = useNavigate();
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [statuses, setStatuses] = useState([]);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("ONGOING");
-  const [editingStatus, setEditingStatus] = useState(null);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState<"success" | "error">("success");
+  const [showViewModal, setShowViewModal] = useState<boolean>(false);
+  const [selectedItem, setSelectedItem] = useState<StatusItem | null>(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [statuses, setStatuses] = useState<StatusItem[]>([]);
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [status, setStatus] = useState<"ONGOING" | "COMPLETED">("ONGOING");
+  const [editingStatus, setEditingStatus] = useState<StatusItem | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<StatusItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>("");
+  const [alertType, setAlertType] = useState<AlertType>("success");
 
-  const handleAddStatus = async (newStatus) => {
+  const handleAddStatus = async (
+    newStatus: Omit<StatusItem, "id" | "created_at">,
+  ) => {
     try {
       const res = await axios.post(
         "http://localhost:8000/api/statuses/add/",
@@ -62,13 +74,11 @@ function Status() {
     }
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = (item: StatusItem) => {
     setEditingStatus(item);
-
     setTitle(item.title);
     setDescription(item.description);
     setStatus(item.status);
-
     setShowModal(true);
   };
 
@@ -124,7 +134,7 @@ function Status() {
         if (response.data.success) {
           setStatuses(
             response.data.statuses.sort(
-              (a, b) =>
+              (a: StatusItem, b: StatusItem) =>
                 new Date(a.created_at).getTime() -
                 new Date(b.created_at).getTime(),
             ),
@@ -221,6 +231,15 @@ function Status() {
             >
               <FaUser /> Profile
             </button>
+
+            {/* 🆕 Added Guide Menu */}
+            <button
+              onClick={() => navigate("/guide")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
+              <FaInfoCircle /> Guide
+            </button>
+
             <button
               onClick={() => navigate("/status")}
               className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
@@ -283,7 +302,6 @@ function Status() {
                 </span>
 
                 <div className="flex gap-2">
-                  {/* 👁 View button */}
                   <button
                     className="p-2 bg-blue-500 rounded hover:bg-blue-600 text-white text-sm flex items-center justify-center"
                     onClick={() => {
@@ -320,7 +338,6 @@ function Status() {
         </div>
       </main>
 
-      {/* 👁 View Modal */}
       {showViewModal && selectedItem && (
         <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-purple-900/80 p-8 rounded-xl w-11/12 md:w-1/2 shadow-2xl text-white backdrop-blur-lg border border-purple-700">
@@ -333,7 +350,6 @@ function Status() {
               {new Date(selectedItem.created_at).toLocaleTimeString()}
             </p>
 
-            {/* 📝 Preserve formatting */}
             <p className="text-gray-100 mb-6 whitespace-pre-wrap">
               {selectedItem.description}
             </p>
@@ -382,7 +398,9 @@ function Status() {
               />
               <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={(e) =>
+                  setStatus(e.target.value as "ONGOING" | "COMPLETED")
+                }
                 className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white text-base"
               >
                 <option value="ONGOING">Ongoing</option>

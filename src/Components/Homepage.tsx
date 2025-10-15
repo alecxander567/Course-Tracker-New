@@ -14,6 +14,7 @@ import {
   FaUser,
   FaProjectDiagram,
   FaPlus,
+  FaInfoCircle,
 } from "react-icons/fa";
 import { BookOpen, ClipboardList, GraduationCap } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -28,15 +29,22 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-interface Subject {
-  id: number;
+type Subject = {
+  id?: number;
+  category:
+    | "Programming"
+    | "Database"
+    | "Networking"
+    | "Security"
+    | "Electives";
   name: string;
-  description?: string;
-  grade?: string;
-  semester?: string;
-  schoolYear?: string;
-  status?: string;
-}
+  description: string;
+  grade: string;
+  semester: string;
+  schoolYear: string;
+  status: "Pending" | "Ongoing" | "Completed";
+  priority: "LOW" | "MODERATE" | "HIGH";
+};
 
 const STATIC_CATEGORIES = [
   "Programming",
@@ -50,7 +58,7 @@ function Homepage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
-  const [newSubjectDetails, setNewSubjectDetails] = useState({
+  const [newSubjectDetails, setNewSubjectDetails] = useState<SubjectDetails>({
     category: "Programming",
     name: "",
     description: "",
@@ -58,7 +66,9 @@ function Homepage() {
     semester: "",
     schoolYear: "",
     status: "Pending",
+    priority: "MODERATE",
   });
+
   const [subjects, setSubjects] = useState<Record<string, Subject[]>>({
     Programming: [],
     Database: [],
@@ -66,16 +76,7 @@ function Homepage() {
     Security: [],
     Electives: [],
   });
-  const [editingSubject, setEditingSubject] = useState<null | {
-    id: number;
-    category: string;
-    name: string;
-    description: string;
-    grade: string;
-    semester: string;
-    schoolYear: string;
-    status: "Pending" | "Ongoing" | "Completed";
-  }>(null);
+  const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
 
   const openEditSubjectModal = (category: string, subject: Subject) => {
     setEditingSubject({
@@ -83,11 +84,11 @@ function Homepage() {
       category,
       name: subject.name,
       description: subject.description || "",
-      grade: subject.grade ? String(subject.grade) : "",
+      grade: subject.grade || "",
       semester: subject.semester || "",
       schoolYear: subject.schoolYear || "",
-      status:
-        (subject.status as "Pending" | "Ongoing" | "Completed") || "Pending",
+      status: subject.status || "Pending",
+      priority: subject.priority || "MODERATE",
     });
   };
 
@@ -176,7 +177,7 @@ function Homepage() {
         Electives: [],
       };
 
-      data.forEach((subj: any) => {
+      data.subjects.forEach((subj: any) => {
         if (grouped[subj.category]) {
           grouped[subj.category].push({
             id: subj.id,
@@ -186,18 +187,19 @@ function Homepage() {
             semester: subj.semester,
             schoolYear: subj.school_year,
             status: subj.status,
+            priority: subj.priority,
           });
         }
       });
 
-      const totalCount = data.length;
-      const completedCount = data.filter(
+      const totalCount = data.subjects.length;
+      const completedCount = data.subjects.filter(
         (s: any) => s.status === "Completed",
       ).length;
-      const ongoingCount = data.filter(
+      const ongoingCount = data.subjects.filter(
         (s: any) => s.status === "Ongoing",
       ).length;
-      const pendingCount = data.filter(
+      const pendingCount = data.subjects.filter(
         (s: any) => s.status === "Pending",
       ).length;
 
@@ -217,20 +219,6 @@ function Homepage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      await axios.post(
-        "http://localhost:8000/api/logout/",
-        {},
-        { withCredentials: true },
-      );
-      navigate("/");
-    } catch (error) {
-      console.error("Logout failed:", error);
-      alert("Failed to log out. Try again.");
-    }
-  };
-
   const handleSaveSubject = async () => {
     if (!newSubjectDetails.name.trim()) {
       setAlert({ message: "Subject name is required", type: "error" });
@@ -249,6 +237,7 @@ function Homepage() {
         semester: newSubjectDetails.semester,
         school_year: newSubjectDetails.schoolYear,
         status: newSubjectDetails.status,
+        priority: newSubjectDetails.priority,
       };
 
       const response = await axios.post(
@@ -257,32 +246,36 @@ function Homepage() {
         { withCredentials: true },
       );
 
-      setSubjects((prev) => ({
-        ...prev,
-        [newSubjectDetails.category]: [
-          ...(prev[newSubjectDetails.category] || []),
-          {
-            id: response.data.subject.id,
-            name: newSubjectDetails.name,
-            description: newSubjectDetails.description,
-            grade: newSubjectDetails.grade,
-            semester: newSubjectDetails.semester,
-            schoolYear: newSubjectDetails.schoolYear,
-          },
-        ],
-      }));
+      const newSubj: Subject = {
+        id: response.data.subject.id,
+        category: response.data.subject.category,
+        name: response.data.subject.subject_name,
+        description: response.data.subject.description,
+        grade: response.data.subject.grade ?? "",
+        semester: response.data.subject.semester ?? "",
+        schoolYear: response.data.subject.school_year ?? "",
+        status: response.data.subject.status,
+        priority: response.data.subject.priority,
+      };
+
+      setSubjects((prev) => {
+        const updated = { ...prev };
+        if (!updated[newSubj.category]) updated[newSubj.category] = [];
+        updated[newSubj.category].push(newSubj);
+        return updated;
+      });
 
       setNewSubjectDetails({
-        category: "Programming",
+        ...newSubjectDetails,
         name: "",
         description: "",
         grade: "",
         semester: "",
         schoolYear: "",
         status: "Pending",
+        priority: "MODERATE",
       });
       setShowModal(false);
-
       setAlert({ message: "Subject added successfully!", type: "success" });
       setTimeout(() => setAlert(null), 3000);
     } catch (error) {
@@ -304,6 +297,7 @@ function Homepage() {
         school_year: editingSubject.schoolYear,
         category: editingSubject.category,
         status: editingSubject.status,
+        priority: editingSubject.priority,
       };
 
       const { data: updatedSubject } = await axios.patch(
@@ -313,22 +307,22 @@ function Homepage() {
 
       setSubjects((prev) => {
         const updated = { ...prev };
-
         Object.keys(updated).forEach((cat) => {
           updated[cat] = updated[cat].filter((s) => s.id !== updatedSubject.id);
         });
-
         if (!updated[updatedSubject.category])
           updated[updatedSubject.category] = [];
 
         updated[updatedSubject.category].push({
           id: updatedSubject.id,
+          category: updatedSubject.category,
           name: updatedSubject.subject_name,
           description: updatedSubject.description,
-          grade: updatedSubject.grade,
+          grade: updatedSubject.grade ?? "",
           semester: updatedSubject.semester,
           schoolYear: updatedSubject.school_year,
           status: updatedSubject.status,
+          priority: updatedSubject.priority,
         });
 
         return updated;
@@ -341,6 +335,20 @@ function Homepage() {
       console.error(error);
       setAlert({ message: "Failed to update subject.", type: "error" });
       setTimeout(() => setAlert(null), 3000);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "http://localhost:8000/api/logout/",
+        {},
+        { withCredentials: true },
+      );
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("Failed to log out. Try again.");
     }
   };
 
@@ -382,6 +390,14 @@ function Homepage() {
             >
               <FaUser /> Profile
             </button>
+
+            <button
+              onClick={() => navigate("/guide")}
+              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
+            >
+              <FaInfoCircle /> Guide
+            </button>
+
             <button
               onClick={() => navigate("/status")}
               className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
@@ -518,14 +534,22 @@ function Homepage() {
         <section className="mb-6 w-full max-w-6xl">
           <h2 className="text-xl font-semibold mb-4 text-white">My Subjects</h2>
           <div className="p-6 rounded-2xl shadow-lg bg-gradient-to-r from-purple-700 via-purple-800 to-purple-900 text-white">
+            <div className="flex justify-end mb-4">
+              <button
+                className="px-4 py-2 bg-cyan-500 text-white rounded hover:bg-cyan-600 transition"
+                onClick={() => setShowModal(true)}
+              >
+                + Add New Subject
+              </button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 grid-flow-dense">
               {STATIC_CATEGORIES.map((category) => (
                 <div
                   key={category}
-                  className="relative p-4 rounded-lg bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 shadow hover:shadow-lg transition flex flex-col h-70"
+                  className="relative p-4 pb-2 rounded-lg bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 shadow hover:shadow-lg transition flex flex-col h-70"
                 >
                   <h3 className="font-bold mb-2 text-center">{category}</h3>
-                  <ul className="list-disc list-inside mb-2 flex-1 overflow-auto max-h-40 pr-2">
+                  <ul className="list-disc list-inside mb-2 flex-1 overflow-auto max-h-50 pr-2">
                     {subjects[category]?.length > 0 ? (
                       subjects[category].map((subj) => (
                         <li
@@ -540,7 +564,7 @@ function Homepage() {
                                 openEditSubjectModal(category, subj)
                               }
                             >
-                              <FaEdit size={14} />
+                              <FaEdit size={20} />
                             </button>
                             <button
                               className="p-1 rounded bg-purple-700 text-white hover:bg-white hover:text-purple-700 border border-white transition"
@@ -553,7 +577,7 @@ function Homepage() {
                                 setShowDeleteModal(true);
                               }}
                             >
-                              <FaTrash size={14} />
+                              <FaTrash size={20} />
                             </button>
                           </div>
                         </li>
@@ -564,13 +588,6 @@ function Homepage() {
                       </li>
                     )}
                   </ul>
-
-                  <button
-                    className="absolute bottom-4 left-4 right-4 bg-white text-black px-2 py-1 rounded hover:bg-gray-200 transition"
-                    onClick={() => setShowModal(true)}
-                  >
-                    + Add Subject
-                  </button>
                 </div>
               ))}
 
@@ -654,8 +671,8 @@ function Homepage() {
 
           {(showModal || editingSubject) && (
             <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
-              <div className="bg-purple-800 p-8 rounded-xl w-10/12 max-w-3xl shadow-2xl relative border border-purple-700">
-                <h2 className="text-2xl font-bold mb-5 flex items-center gap-3 text-white">
+              <div className="bg-purple-800 p-6 rounded-xl w-11/12 max-w-2xl shadow-2xl relative border border-purple-700">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-3 text-white">
                   {editingSubject ? (
                     <>
                       <FaEdit className="text-yellow-400" /> Edit Subject
@@ -667,25 +684,31 @@ function Homepage() {
                   )}
                 </h2>
 
-                {/* Category select only for Add Subject */}
-                {!editingSubject && (
-                  <select
-                    className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
-                    value={newSubjectDetails.category}
-                    onChange={(e) =>
-                      setNewSubjectDetails((prev) => ({
-                        ...prev,
-                        category: e.target.value,
-                      }))
-                    }
-                  >
-                    {STATIC_CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                )}
+                <select
+                  className="w-full mb-3 px-3 py-2 rounded bg-purple-700 text-white border border-purple-600 text-base"
+                  value={
+                    editingSubject
+                      ? editingSubject.category
+                      : newSubjectDetails.category
+                  }
+                  onChange={(e) =>
+                    editingSubject
+                      ? setEditingSubject({
+                          ...editingSubject,
+                          category: e.target.value as Subject["category"],
+                        })
+                      : setNewSubjectDetails({
+                          ...newSubjectDetails,
+                          category: e.target.value as Subject["category"],
+                        })
+                  }
+                >
+                  {STATIC_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
 
                 <input
                   type="text"
@@ -706,7 +729,7 @@ function Homepage() {
                           name: e.target.value,
                         })
                   }
-                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
+                  className="w-full mb-3 px-3 py-2 rounded bg-purple-700 text-white border border-purple-600 text-base"
                 />
 
                 <textarea
@@ -727,8 +750,8 @@ function Homepage() {
                           description: e.target.value,
                         })
                   }
-                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
-                  rows={5}
+                  className="w-full mb-3 px-3 py-2 rounded bg-purple-700 text-white border border-purple-600 text-base"
+                  rows={4}
                 />
 
                 <input
@@ -750,54 +773,11 @@ function Homepage() {
                           grade: e.target.value,
                         })
                   }
-                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
-                />
-
-                <input
-                  type="text"
-                  placeholder="Semester"
-                  value={
-                    editingSubject
-                      ? editingSubject.semester
-                      : newSubjectDetails.semester
-                  }
-                  onChange={(e) =>
-                    editingSubject
-                      ? setEditingSubject({
-                          ...editingSubject,
-                          semester: e.target.value,
-                        })
-                      : setNewSubjectDetails({
-                          ...newSubjectDetails,
-                          semester: e.target.value,
-                        })
-                  }
-                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
-                />
-
-                <input
-                  type="text"
-                  placeholder="School Year"
-                  value={
-                    editingSubject
-                      ? editingSubject.schoolYear
-                      : newSubjectDetails.schoolYear
-                  }
-                  onChange={(e) =>
-                    editingSubject
-                      ? setEditingSubject({
-                          ...editingSubject,
-                          schoolYear: e.target.value,
-                        })
-                      : setNewSubjectDetails({
-                          ...newSubjectDetails,
-                          schoolYear: e.target.value,
-                        })
-                  }
-                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
+                  className="w-full mb-3 px-3 py-2 rounded bg-purple-700 text-white border border-purple-600 text-base"
                 />
 
                 <select
+                  className="w-full mb-3 px-3 py-2 rounded bg-purple-700 text-white border border-purple-600 text-base"
                   value={
                     editingSubject
                       ? editingSubject.status
@@ -807,18 +787,41 @@ function Homepage() {
                     editingSubject
                       ? setEditingSubject({
                           ...editingSubject,
-                          status: e.target.value,
+                          status: e.target.value as SubjectStatus,
                         })
                       : setNewSubjectDetails({
                           ...newSubjectDetails,
-                          status: e.target.value,
+                          status: e.target.value as SubjectStatus,
                         })
                   }
-                  className="w-full mb-4 px-4 py-3 rounded bg-purple-700 text-white border border-purple-600 text-base"
                 >
                   <option value="Pending">Pending</option>
                   <option value="Ongoing">Ongoing</option>
                   <option value="Completed">Completed</option>
+                </select>
+
+                <select
+                  className="w-full mb-3 px-3 py-2 rounded bg-purple-700 text-white border border-purple-600 text-base"
+                  value={
+                    editingSubject
+                      ? editingSubject.priority
+                      : newSubjectDetails.priority
+                  }
+                  onChange={(e) =>
+                    editingSubject
+                      ? setEditingSubject({
+                          ...editingSubject,
+                          priority: e.target.value as SubjectPriority,
+                        })
+                      : setNewSubjectDetails({
+                          ...newSubjectDetails,
+                          priority: e.target.value as SubjectPriority,
+                        })
+                  }
+                >
+                  <option value="HIGH">HIGH</option>
+                  <option value="MODERATE">MODERATE</option>
+                  <option value="LOW">LOW</option>
                 </select>
 
                 <div className="flex justify-end gap-4">
