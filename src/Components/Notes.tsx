@@ -48,6 +48,11 @@ function Notes() {
   const [alertType, setAlertType] = useState<"success" | "error">("success");
   const [deleteNoteId, setDeleteNoteId] = useState<number | null>(null);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredSubjects = notesBySubject.filter((subject) =>
+    subject.subject_name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   const handleDeleteNote = async (noteId: number) => {
     try {
@@ -277,12 +282,22 @@ function Notes() {
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <FaStickyNote className="text-cyan-400" /> Notes
           </h1>
-          <button
-            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg shadow-md transition"
-            onClick={handleAddNoteClick}
-          >
-            <FaPlus /> Add New Note
-          </button>
+
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              placeholder="Search subject..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-4 py-2 rounded-lg bg-purple-700 text-white border border-purple-600 placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-cyan-400 w-64"
+            />
+            <button
+              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg shadow-md transition"
+              onClick={handleAddNoteClick}
+            >
+              <FaPlus /> Add New Note
+            </button>
+          </div>
         </div>
 
         <div className="w-full h-full">
@@ -291,7 +306,7 @@ function Notes() {
               <p>No notes yet. Click "Add New Note" to create one!</p>
             </div>
           ) : (
-            notesBySubject.map((subject) => (
+            filteredSubjects.map((subject) => (
               <div
                 key={subject.subject_id}
                 className="mb-6 p-4 bg-purple-900 rounded-2xl shadow-lg"
