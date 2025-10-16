@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaStickyNote,
@@ -49,6 +49,17 @@ function Notes() {
   const [deleteNoteId, setDeleteNoteId] = useState<number | null>(null);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
+
+  const menuItems = [
+    { path: "/homepage", label: "Dashboard", icon: <FaTachometerAlt /> },
+    { path: "/courses", label: "Courses", icon: <FaBook /> },
+    { path: "/Notes", label: "Notes", icon: <FaStickyNote /> },
+    { path: "/projects", label: "Projects", icon: <FaProjectDiagram /> },
+    { path: "/profile", label: "Profile", icon: <FaUser /> },
+    { path: "/guide", label: "Guide", icon: <FaInfoCircle /> },
+    { path: "/status", label: "Status", icon: <FaChartBar /> },
+  ];
 
   const filteredSubjects = notesBySubject.filter((subject) =>
     subject.subject_name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -223,50 +234,22 @@ function Notes() {
             Course Tracker
           </h2>
           <nav className="flex flex-col gap-4">
-            <button
-              onClick={() => navigate("/homepage")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaTachometerAlt /> Dashboard
-            </button>
-            <button
-              onClick={() => navigate("/courses")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaBook /> Courses
-            </button>
-            <button
-              onClick={() => navigate("/Notes")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaStickyNote /> Notes
-            </button>
-            <button
-              onClick={() => navigate("/projects")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaProjectDiagram /> Projects
-            </button>
-            <button
-              onClick={() => navigate("/profile")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaUser /> Profile
-            </button>
-            <button
-              onClick={() => navigate("/guide")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaInfoCircle /> Guide
-            </button>
-            <button
-              onClick={() => navigate("/status")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaChartBar /> Status
-            </button>
+            {menuItems.map((item) => (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`flex items-center gap-2 py-2 px-4 rounded text-left transition ${
+                  location.pathname === item.path
+                    ? "bg-purple-700 shadow-md"
+                    : "hover:bg-purple-700"
+                }`}
+              >
+                {item.icon} {item.label}
+              </button>
+            ))}
           </nav>
         </div>
+
         <div>
           <button
             onClick={handleLogout}

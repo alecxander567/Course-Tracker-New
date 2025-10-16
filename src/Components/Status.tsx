@@ -13,8 +13,8 @@ import {
   FaEye,
 } from "react-icons/fa";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 
 interface StatusItem {
   id: number;
@@ -41,6 +41,17 @@ function Status() {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>("");
   const [alertType, setAlertType] = useState<AlertType>("success");
+  const location = useLocation();
+
+  const menuItems = [
+    { path: "/homepage", label: "Dashboard", icon: <FaTachometerAlt /> },
+    { path: "/courses", label: "Courses", icon: <FaBook /> },
+    { path: "/Notes", label: "Notes", icon: <FaStickyNote /> },
+    { path: "/projects", label: "Projects", icon: <FaProjectDiagram /> },
+    { path: "/profile", label: "Profile", icon: <FaUser /> },
+    { path: "/guide", label: "Guide", icon: <FaInfoCircle /> },
+    { path: "/status", label: "Status", icon: <FaChartBar /> },
+  ];
 
   const handleAddStatus = async (
     newStatus: Omit<StatusItem, "id" | "created_at">,
@@ -201,53 +212,22 @@ function Status() {
             Course Tracker
           </h2>
           <nav className="flex flex-col gap-4">
-            <button
-              onClick={() => navigate("/homepage")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaTachometerAlt /> Dashboard
-            </button>
-            <button
-              onClick={() => navigate("/courses")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaBook /> Courses
-            </button>
-            <button
-              onClick={() => navigate("/Notes")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaStickyNote /> Notes
-            </button>
-            <button
-              onClick={() => navigate("/projects")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaProjectDiagram /> Projects
-            </button>
-            <button
-              onClick={() => navigate("/profile")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaUser /> Profile
-            </button>
-
-            {/* 🆕 Added Guide Menu */}
-            <button
-              onClick={() => navigate("/guide")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaInfoCircle /> Guide
-            </button>
-
-            <button
-              onClick={() => navigate("/status")}
-              className="flex items-center gap-2 py-2 px-4 rounded hover:bg-purple-700 transition text-left"
-            >
-              <FaChartBar /> Status
-            </button>
+            {menuItems.map((item) => (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`flex items-center gap-2 py-2 px-4 rounded text-left transition ${
+                  location.pathname === item.path
+                    ? "bg-purple-700 shadow-md"
+                    : "hover:bg-purple-700"
+                }`}
+              >
+                {item.icon} {item.label}
+              </button>
+            ))}
           </nav>
         </div>
+
         <div>
           <button
             onClick={handleLogout}
