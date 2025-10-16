@@ -130,12 +130,10 @@ function Notes() {
           withCredentials: true,
         });
 
-        // Check if the response has the expected structure
         const subjectsData = res.data?.subjects || res.data || [];
 
         setSubjects(subjectsData);
 
-        // Only set selectedSubjectId if we have subjects
         if (subjectsData.length > 0) {
           setSelectedSubjectId(subjectsData[0].id.toString());
         }
@@ -147,7 +145,6 @@ function Notes() {
   }, []);
 
   const handleAddNoteClick = () => {
-    // Check if there are subjects before opening modal
     if (subjects.length === 0) {
       setAlertMessage("Please add a subject first before creating notes.");
       setAlertType("error");
@@ -158,7 +155,6 @@ function Notes() {
   };
 
   const handleSaveNote = async () => {
-    // Validate inputs
     if (!title.trim()) {
       setAlertMessage("Please enter a title.");
       setAlertType("error");
