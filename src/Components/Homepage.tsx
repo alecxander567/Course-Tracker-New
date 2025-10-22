@@ -757,6 +757,52 @@ function Homepage() {
                   className="w-full mb-3 px-3 py-2 rounded bg-purple-700 text-white border border-purple-600 text-base"
                 />
 
+                {/* Semester Input */}
+                <input
+                  type="text"
+                  placeholder="Semester (e.g., 1st Semester)"
+                  value={
+                    editingSubject
+                      ? editingSubject.semester
+                      : newSubjectDetails.semester
+                  }
+                  onChange={(e) =>
+                    editingSubject
+                      ? setEditingSubject({
+                          ...editingSubject,
+                          semester: e.target.value,
+                        })
+                      : setNewSubjectDetails({
+                          ...newSubjectDetails,
+                          semester: e.target.value,
+                        })
+                  }
+                  className="w-full mb-3 px-3 py-2 rounded bg-purple-700 text-white border border-purple-600 text-base"
+                />
+
+                {/* School Year Input */}
+                <input
+                  type="text"
+                  placeholder="School Year (e.g., 2025–2026)"
+                  value={
+                    editingSubject
+                      ? editingSubject.schoolYear
+                      : newSubjectDetails.schoolYear
+                  }
+                  onChange={(e) =>
+                    editingSubject
+                      ? setEditingSubject({
+                          ...editingSubject,
+                          schoolYear: e.target.value,
+                        })
+                      : setNewSubjectDetails({
+                          ...newSubjectDetails,
+                          schoolYear: e.target.value,
+                        })
+                  }
+                  className="w-full mb-3 px-3 py-2 rounded bg-purple-700 text-white border border-purple-600 text-base"
+                />
+
                 <select
                   className="w-full mb-3 px-3 py-2 rounded bg-purple-700 text-white border border-purple-600 text-base"
                   value={
