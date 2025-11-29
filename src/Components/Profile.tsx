@@ -14,6 +14,7 @@ import {
   FaUpload,
   FaProjectDiagram,
   FaInfoCircle,
+  FaCheckSquare,
 } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 
@@ -62,7 +63,7 @@ function Profile() {
     { path: "/projects", label: "Projects", icon: <FaProjectDiagram /> },
     { path: "/profile", label: "Profile", icon: <FaUser /> },
     { path: "/guide", label: "Guide", icon: <FaInfoCircle /> },
-    { path: "/status", label: "Status", icon: <FaChartBar /> },
+    { path: "/status", label: "Status", icon: <FaCheckSquare /> },
   ];
 
   const updateProfile = async () => {
@@ -85,7 +86,7 @@ function Profile() {
 
       const resProfile = await axios.get(
         `http://localhost:8000/profile/${user.id}/`,
-        { withCredentials: true },
+        { withCredentials: true }
       );
       setUser(resProfile.data.user);
       setProfile(resProfile.data.profile);
@@ -113,14 +114,14 @@ function Profile() {
       try {
         const resUser = await axios.get(
           "http://localhost:8000/api/current_user/",
-          { withCredentials: true },
+          { withCredentials: true }
         );
         const currentUser = resUser.data;
         setUser(currentUser);
 
         const resProfile = await axios.get(
           `http://localhost:8000/profile/${currentUser.id}/`,
-          { withCredentials: true },
+          { withCredentials: true }
         );
         setProfile(resProfile.data.profile);
       } catch (err) {
@@ -135,7 +136,7 @@ function Profile() {
       await axios.post(
         "http://localhost:8000/api/logout/",
         {},
-        { withCredentials: true },
+        { withCredentials: true }
       );
       navigate("/");
     } catch (error) {
@@ -159,11 +160,10 @@ function Profile() {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={`flex items-center gap-2 py-2 px-4 rounded text-left transition ${
-                  location.pathname === item.path
-                    ? "bg-purple-700 shadow-md"
-                    : "hover:bg-purple-700"
-                }`}
-              >
+                  location.pathname === item.path ?
+                    "bg-purple-700 shadow-md"
+                  : "hover:bg-purple-700"
+                }`}>
                 {item.icon} {item.label}
               </button>
             ))}
@@ -173,8 +173,7 @@ function Profile() {
         <div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 py-2 px-4 rounded bg-red-600 hover:bg-red-700 transition w-full"
-          >
+            className="flex items-center gap-2 py-2 px-4 rounded bg-red-600 hover:bg-red-700 transition w-full">
             <FaSignOutAlt /> Log Out
           </button>
         </div>
@@ -186,8 +185,7 @@ function Profile() {
             className="absolute top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg text-white z-50 shadow-lg"
             style={{
               backgroundColor: alertType === "success" ? "#22c55e" : "#ef4444",
-            }}
-          >
+            }}>
             {alertMessage}
           </div>
         )}
@@ -197,9 +195,9 @@ function Profile() {
             <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-700 mb-4">
               <img
                 src={
-                  profile.profile_pic
-                    ? `http://localhost:8000${profile.profile_pic}?t=${Date.now()}`
-                    : `https://ui-avatars.com/api/?name=${user.username}&background=random`
+                  profile.profile_pic ?
+                    `http://localhost:8000${profile.profile_pic}?t=${Date.now()}`
+                  : `https://ui-avatars.com/api/?name=${user.username}&background=random`
                 }
                 alt={user.username}
                 className="w-full h-full object-cover"
@@ -267,8 +265,7 @@ function Profile() {
                 e.preventDefault();
                 updateProfile();
               }}
-              className="flex flex-col gap-4 flex-1"
-            >
+              className="flex flex-col gap-4 flex-1">
               <input
                 type="text"
                 placeholder="Username"
@@ -341,8 +338,7 @@ function Profile() {
 
               <button
                 type="submit"
-                className="mt-4 px-8 py-3 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition w-full self-start"
-              >
+                className="mt-4 px-8 py-3 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition w-full self-start">
                 Save Changes
               </button>
             </form>

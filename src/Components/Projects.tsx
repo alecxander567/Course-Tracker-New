@@ -11,6 +11,7 @@ import {
   FaTrash,
   FaPlusCircle,
   FaInfoCircle,
+  FaCheckSquare,
 } from "react-icons/fa";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -49,7 +50,7 @@ function Projects() {
     { path: "/projects", label: "Projects", icon: <FaProjectDiagram /> },
     { path: "/profile", label: "Profile", icon: <FaUser /> },
     { path: "/guide", label: "Guide", icon: <FaInfoCircle /> },
-    { path: "/status", label: "Status", icon: <FaChartBar /> },
+    { path: "/status", label: "Status", icon: <FaCheckSquare /> },
   ];
 
   const handleDeleteProject = async () => {
@@ -61,7 +62,7 @@ function Projects() {
       const response = await axios.post(
         `http://localhost:8000/api/projects/delete/${deleteTarget.id}/`,
         {},
-        { withCredentials: true },
+        { withCredentials: true }
       );
 
       if (response.data.success) {
@@ -92,7 +93,7 @@ function Projects() {
       if (response.data.success && response.data.projects) {
         const sortedProjects = response.data.projects.sort(
           (a: ProjectType, b: ProjectType) =>
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
 
         setProjects(sortedProjects);
@@ -115,14 +116,14 @@ function Projects() {
         response = await axios.post(
           `http://localhost:8000/api/projects/edit/${editProjectId}/`,
           { title, description, status },
-          { withCredentials: true },
+          { withCredentials: true }
         );
         setAlertMessage("Project updated successfully!");
       } else {
         response = await axios.post(
           "http://localhost:8000/api/add_project/",
           { title, description, status },
-          { withCredentials: true },
+          { withCredentials: true }
         );
         setAlertMessage("Project added successfully!");
       }
@@ -150,7 +151,7 @@ function Projects() {
       await axios.post(
         "http://localhost:8000/api/logout/",
         {},
-        { withCredentials: true },
+        { withCredentials: true }
       );
       navigate("/");
     } catch (error) {
@@ -172,11 +173,10 @@ function Projects() {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={`flex items-center gap-2 py-2 px-4 rounded text-left transition ${
-                  location.pathname === item.path
-                    ? "bg-purple-700 shadow-md"
-                    : "hover:bg-purple-700"
-                }`}
-              >
+                  location.pathname === item.path ?
+                    "bg-purple-700 shadow-md"
+                  : "hover:bg-purple-700"
+                }`}>
                 {item.icon} {item.label}
               </button>
             ))}
@@ -186,8 +186,7 @@ function Projects() {
         <div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 py-2 px-4 rounded bg-red-600 hover:bg-red-700 transition w-full"
-          >
+            className="flex items-center gap-2 py-2 px-4 rounded bg-red-600 hover:bg-red-700 transition w-full">
             <FaSignOutAlt /> Log Out
           </button>
         </div>
@@ -200,23 +199,20 @@ function Projects() {
           </h1>
           <button
             className="text-white flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg shadow-md transition"
-            onClick={() => setShowModal(true)}
-          >
+            onClick={() => setShowModal(true)}>
             <FaPlus /> Add New Project
           </button>
         </div>
 
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.length === 0 ? (
+          {projects.length === 0 ?
             <div className="col-span-full text-center text-white text-lg">
               No projects yet. Create your first project!
             </div>
-          ) : (
-            projects.map((project) => (
+          : projects.map((project) => (
               <div
                 key={project.id}
-                className="bg-purple-800 p-4 rounded shadow-lg text-white flex flex-col justify-between"
-              >
+                className="bg-purple-800 p-4 rounded shadow-lg text-white flex flex-col justify-between">
                 <div>
                   <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
                     <FaProjectDiagram className="text-cyan-400" />{" "}
@@ -225,13 +221,10 @@ function Projects() {
                   <p className="text-sm mb-2">{project.description}</p>
                   <span
                     className={`text-xs px-2 py-1 rounded ${
-                      project.status === "COMPLETED"
-                        ? "bg-green-500"
-                        : project.status === "IN_PROGRESS"
-                          ? "bg-yellow-500"
-                          : "bg-red-500"
-                    }`}
-                  >
+                      project.status === "COMPLETED" ? "bg-green-500"
+                      : project.status === "IN_PROGRESS" ? "bg-yellow-500"
+                      : "bg-red-500"
+                    }`}>
                     {project.status.replace("_", " ")}
                   </span>
                 </div>
@@ -244,8 +237,7 @@ function Projects() {
                       setDescription(project.description);
                       setStatus(project.status);
                       setShowModal(true);
-                    }}
-                  >
+                    }}>
                     <FaEdit />
                   </button>
                   <button
@@ -253,14 +245,13 @@ function Projects() {
                     onClick={() => {
                       setDeleteTarget(project);
                       setShowDeleteModal(true);
-                    }}
-                  >
+                    }}>
                     <FaTrash />
                   </button>
                 </div>
               </div>
             ))
-          )}
+          }
         </div>
       </main>
 
@@ -268,15 +259,14 @@ function Projects() {
         <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-purple-800 p-8 rounded-xl w-10/12 max-w-3xl shadow-2xl relative border border-purple-700">
             <h2 className="text-2xl font-bold mb-5 text-white flex items-center gap-3">
-              {editProjectId ? (
+              {editProjectId ?
                 <>
                   <FaEdit className="text-yellow-400" /> Edit Project
                 </>
-              ) : (
-                <>
+              : <>
                   <FaPlusCircle className="text-cyan-400" /> Add New Project
                 </>
-              )}
+              }
             </h2>
             <form onSubmit={handleSubmit}>
               <input
@@ -297,8 +287,7 @@ function Projects() {
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as any)}
-                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white text-base"
-              >
+                className="w-full mb-4 px-4 py-3 border border-purple-600 rounded bg-purple-700 text-white text-base">
                 <option value="NOT_STARTED">Not Started</option>
                 <option value="IN_PROGRESS">In Progress</option>
                 <option value="COMPLETED">Completed</option>
@@ -313,14 +302,12 @@ function Projects() {
                     setTitle("");
                     setDescription("");
                     setStatus("NOT_STARTED");
-                  }}
-                >
+                  }}>
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white text-base"
-                >
+                  className="px-5 py-2 bg-cyan-500 rounded hover:bg-cyan-600 text-white text-base">
                   Save
                 </button>
               </div>
@@ -343,16 +330,14 @@ function Projects() {
             <div className="flex justify-end gap-2">
               <button
                 className="px-4 py-2 bg-purple-300 text-purple-900 rounded hover:bg-purple-400 transition"
-                onClick={() => setShowDeleteModal(false)}
-              >
+                onClick={() => setShowDeleteModal(false)}>
                 Cancel
               </button>
 
               <button
                 className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
                 onClick={handleDeleteProject}
-                disabled={isDeleting}
-              >
+                disabled={isDeleting}>
                 {isDeleting ? "Deleting..." : "Delete"}
               </button>
             </div>
@@ -364,8 +349,7 @@ function Projects() {
         <div
           className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-6 py-3 rounded shadow-lg text-white z-50 text-center ${
             alertType === "success" ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
+          }`}>
           {alertMessage}
         </div>
       )}

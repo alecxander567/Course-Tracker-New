@@ -14,6 +14,7 @@ import {
   FaUser,
   FaProjectDiagram,
   FaInfoCircle,
+  FaCheckSquare,
 } from "react-icons/fa";
 
 import axios from "axios";
@@ -53,7 +54,7 @@ function Courses() {
     { path: "/projects", label: "Projects", icon: <FaProjectDiagram /> },
     { path: "/profile", label: "Profile", icon: <FaUser /> },
     { path: "/guide", label: "Guide", icon: <FaInfoCircle /> },
-    { path: "/status", label: "Status", icon: <FaChartBar /> },
+    { path: "/status", label: "Status", icon: <FaCheckSquare /> },
   ];
 
   const handleLogout = async () => {
@@ -61,7 +62,7 @@ function Courses() {
       await axios.post(
         "http://localhost:8000/api/logout/",
         {},
-        { withCredentials: true },
+        { withCredentials: true }
       );
       navigate("/");
     } catch (error) {
@@ -104,11 +105,10 @@ function Courses() {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={`flex items-center gap-2 py-2 px-4 rounded text-left transition ${
-                  location.pathname === item.path
-                    ? "bg-purple-700 shadow-md"
-                    : "hover:bg-purple-700"
-                }`}
-              >
+                  location.pathname === item.path ?
+                    "bg-purple-700 shadow-md"
+                  : "hover:bg-purple-700"
+                }`}>
                 {item.icon} {item.label}
               </button>
             ))}
@@ -118,8 +118,7 @@ function Courses() {
         <div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 py-2 px-4 rounded bg-red-600 hover:bg-red-700 transition w-full"
-          >
+            className="flex items-center gap-2 py-2 px-4 rounded bg-red-600 hover:bg-red-700 transition w-full">
             <FaSignOutAlt /> Log Out
           </button>
         </div>
@@ -132,18 +131,17 @@ function Courses() {
           </h1>
         </div>
 
-        {loading ? (
+        {loading ?
           <p className="text-center text-gray-200">Loading subjects...</p>
-        ) : subjects.length === 0 ? (
+        : subjects.length === 0 ?
           <p className="text-center text-gray-300">No subjects found.</p>
-        ) : (
-          <>
+        : <>
             {Object.entries(
               subjects.reduce((acc, subj) => {
                 if (!acc[subj.category]) acc[subj.category] = [];
                 acc[subj.category].push(subj);
                 return acc;
-              }, {}),
+              }, {})
             ).map(([category, subjectsInCategory]) => (
               <div key={category} className="mb-8">
                 <h2 className="text-2xl font-bold mb-4 flex items-center gap-3 text-purple-200">
@@ -153,8 +151,7 @@ function Courses() {
                   {subjectsInCategory.map((subject) => (
                     <div
                       key={subject.id}
-                      className="bg-purple-950 p-6 rounded-2xl shadow-lg border border-purple-700 hover:shadow-xl transition transform hover:-translate-y-1"
-                    >
+                      className="bg-purple-950 p-6 rounded-2xl shadow-lg border border-purple-700 hover:shadow-xl transition transform hover:-translate-y-1">
                       <h3 className="text-xl font-semibold mb-2 flex items-center gap-2 text-cyan-400">
                         <FaBook /> {subject.subject_name}
                       </h3>
@@ -199,13 +196,10 @@ function Courses() {
                         <p className="flex items-center gap-2">
                           <FaCheckCircle
                             className={`${
-                              subject.status === "Completed"
-                                ? "text-green-400"
-                                : subject.status === "Pending"
-                                  ? "text-yellow-400"
-                                  : subject.status === "Ongoing"
-                                    ? "text-red-400"
-                                    : "text-gray-400"
+                              subject.status === "Completed" ? "text-green-400"
+                              : subject.status === "Pending" ? "text-yellow-400"
+                              : subject.status === "Ongoing" ? "text-red-400"
+                              : "text-gray-400"
                             }`}
                           />
                           <span className="font-semibold text-purple-300">
@@ -214,15 +208,11 @@ function Courses() {
                           <span
                             className={`px-2 py-1 rounded-md text-sm font-semibold
       ${
-        subject.status === "Completed"
-          ? "bg-green-700 text-white"
-          : subject.status === "Pending"
-            ? "bg-yellow-600 text-black"
-            : subject.status === "Ongoing"
-              ? "bg-red-700 text-white"
-              : "bg-gray-600 text-white"
-      }`}
-                          >
+        subject.status === "Completed" ? "bg-green-700 text-white"
+        : subject.status === "Pending" ? "bg-yellow-600 text-black"
+        : subject.status === "Ongoing" ? "bg-red-700 text-white"
+        : "bg-gray-600 text-white"
+      }`}>
                             {subject.status}
                           </span>
                         </p>
@@ -233,7 +223,7 @@ function Courses() {
               </div>
             ))}
           </>
-        )}
+        }
       </main>
     </div>
   );

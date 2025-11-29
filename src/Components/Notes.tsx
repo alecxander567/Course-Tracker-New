@@ -13,6 +13,7 @@ import {
   FaEye,
   FaProjectDiagram,
   FaInfoCircle,
+  FaCheckSquare
 } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
@@ -58,7 +59,7 @@ function Notes() {
     { path: "/projects", label: "Projects", icon: <FaProjectDiagram /> },
     { path: "/profile", label: "Profile", icon: <FaUser /> },
     { path: "/guide", label: "Guide", icon: <FaInfoCircle /> },
-    { path: "/status", label: "Status", icon: <FaChartBar /> },
+    { path: "/status", label: "Status", icon: <FaCheckSquare /> },
   ];
 
   const filteredSubjects = notesBySubject.filter((subject) =>

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaStickyNote,
-  FaChartBar,
+  FaCheckSquare,
   FaSignOutAlt,
   FaCheckCircle,
   FaPlayCircle,
@@ -116,7 +116,7 @@ function Homepage() {
     { path: "/projects", label: "Projects", icon: <FaProjectDiagram /> },
     { path: "/profile", label: "Profile", icon: <FaUser /> },
     { path: "/guide", label: "Guide", icon: <FaInfoCircle /> },
-    { path: "/status", label: "Status", icon: <FaChartBar /> },
+    { path: "/status", label: "Status", icon: <FaCheckSquare /> },
   ];
 
   useEffect(() => {
