@@ -15,6 +15,8 @@ import {
   FaProjectDiagram,
   FaInfoCircle,
   FaCheckSquare,
+  FaEdit,
+  FaSave,
 } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 
@@ -86,7 +88,7 @@ function Profile() {
 
       const resProfile = await axios.get(
         `http://localhost:8000/profile/${user.id}/`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setUser(resProfile.data.user);
       setProfile(resProfile.data.profile);
@@ -114,14 +116,14 @@ function Profile() {
       try {
         const resUser = await axios.get(
           "http://localhost:8000/api/current_user/",
-          { withCredentials: true }
+          { withCredentials: true },
         );
         const currentUser = resUser.data;
         setUser(currentUser);
 
         const resProfile = await axios.get(
           `http://localhost:8000/profile/${currentUser.id}/`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
         setProfile(resProfile.data.profile);
       } catch (err) {
@@ -136,7 +138,7 @@ function Profile() {
       await axios.post(
         "http://localhost:8000/api/logout/",
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       navigate("/");
     } catch (error) {
@@ -148,23 +150,39 @@ function Profile() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-purple-900 via-purple-800 to-purple-700">
-      <aside className="w-64 bg-purple-900 text-white flex flex-col justify-between p-6 shadow-lg fixed h-full">
+    <div className="min-h-screen flex bg-gradient-to-br from-purple-950 via-purple-900 to-indigo-950 relative overflow-hidden">
+      {/* Background gradient orbs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
+        <div
+          className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}></div>
+      </div>
+
+      {/* Sidebar */}
+      <aside className="w-64 bg-gradient-to-b from-purple-900/95 via-purple-800/95 to-indigo-900/95 backdrop-blur-xl border-r border-purple-500/20 text-white flex flex-col justify-between p-6 shadow-2xl fixed h-full z-20">
         <div>
-          <h2 className="text-2xl font-bold mb-8 text-center">
-            Course Tracker
-          </h2>
-          <nav className="flex flex-col gap-4">
+          <div className="mb-8 text-center">
+            <div className="inline-block p-3 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50 mb-3">
+              <FaBook className="text-3xl text-white" />
+            </div>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-200 to-pink-200 bg-clip-text text-transparent">
+              Course Tracker
+            </h2>
+          </div>
+
+          <nav className="flex flex-col gap-2">
             {menuItems.map((item) => (
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`flex items-center gap-2 py-2 px-4 rounded text-left transition ${
+                className={`flex items-center gap-3 py-3 px-4 rounded-xl text-left transition-all duration-300 ${
                   location.pathname === item.path ?
-                    "bg-purple-700 shadow-md"
-                  : "hover:bg-purple-700"
+                    "bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50 scale-105"
+                  : "hover:bg-white/10 hover:translate-x-1"
                 }`}>
-                {item.icon} {item.label}
+                <span className="text-lg">{item.icon}</span>
+                <span className="font-medium">{item.label}</span>
               </button>
             ))}
           </nav>
@@ -173,178 +191,310 @@ function Profile() {
         <div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 py-2 px-4 rounded bg-red-600 hover:bg-red-700 transition w-full">
-            <FaSignOutAlt /> Log Out
+            className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 transition-all duration-300 w-full shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+            <FaSignOutAlt /> <span className="font-semibold">Log Out</span>
           </button>
         </div>
       </aside>
 
-      <main className="flex-1 flex p-10 ml-64 text-white w-full gap-6 relative">
-        {alertMessage && (
-          <div
-            className="absolute top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg text-white z-50 shadow-lg"
-            style={{
-              backgroundColor: alertType === "success" ? "#22c55e" : "#ef4444",
-            }}>
-            {alertMessage}
-          </div>
-        )}
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col p-8 ml-64 relative z-10">
+        {/* Header Section */}
+        <section className="mb-8 w-full max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold flex items-center gap-3 bg-gradient-to-r from-purple-200 via-pink-200 to-purple-200 bg-clip-text text-transparent mb-2">
+            <FaUser className="text-cyan-400" /> My Profile
+          </h1>
+          <p className="text-gray-300 text-lg">
+            Manage your account information and preferences
+          </p>
+        </section>
 
-        <div className="flex gap-6 w-full">
-          <div className="flex-1 bg-purple-900/90 rounded-2xl shadow-lg p-6 flex flex-col items-center text-white min-h-[500px]">
-            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-700 mb-4">
-              <img
-                src={
-                  profile.profile_pic ?
-                    `http://localhost:8000${profile.profile_pic}?t=${Date.now()}`
-                  : `https://ui-avatars.com/api/?name=${user.username}&background=random`
-                }
-                alt={user.username}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${user.username}&background=random`;
-                }}
-              />
-            </div>
+        {/* Profile Content */}
+        <section className="w-full max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column - Profile Display */}
+            <div className="rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg border border-purple-400/20 p-8 shadow-xl">
+              <div className="flex flex-col items-center">
+                {/* Profile Picture */}
+                <div className="relative group mb-6">
+                  <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-purple-400/30 shadow-2xl shadow-purple-500/50 transition-all duration-300 group-hover:scale-105 group-hover:border-purple-400/50">
+                    <img
+                      src={
+                        profile.profile_pic ?
+                          `http://localhost:8000${profile.profile_pic}?t=${Date.now()}`
+                        : `https://ui-avatars.com/api/?name=${user.username}&background=random&size=160`
+                      }
+                      alt={user.username}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${user.username}&background=random&size=160`;
+                      }}
+                    />
+                  </div>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-600/20 to-pink-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
 
-            <h2 className="text-3xl font-bold mb-4 text-center text-white">
-              {user.full_name || user.username}
-            </h2>
+                {/* User Name */}
+                <h2 className="text-3xl font-bold mb-2 text-center bg-gradient-to-r from-purple-200 to-pink-200 bg-clip-text text-transparent">
+                  {user.full_name || user.username}
+                </h2>
+                <p className="text-purple-300 text-sm mb-6">@{user.username}</p>
 
-            <div className="flex flex-col gap-3 w-full px-4">
-              <p className="flex items-center gap-2">
-                <FaEnvelope className="text-cyan-400" />{" "}
-                <span className="font-semibold text-white">Email:</span>{" "}
-                {user.email}
-              </p>
-              {profile.address && (
-                <p className="flex items-center gap-2">
-                  <FaMapMarkerAlt className="text-cyan-400" />{" "}
-                  <span className="font-semibold text-white">Address:</span>{" "}
-                  {profile.address}
-                </p>
-              )}
-              {profile.school && (
-                <p className="flex items-center gap-2">
-                  <FaSchool className="text-cyan-400" />{" "}
-                  <span className="font-semibold text-white">School:</span>{" "}
-                  {profile.school}
-                </p>
-              )}
-              {profile.course && (
-                <p className="flex items-center gap-2">
-                  <FaBook className="text-cyan-400" />{" "}
-                  <span className="font-semibold text-white">Course:</span>{" "}
-                  {profile.course}
-                </p>
-              )}
-              {profile.bio && (
-                <div className="flex items-start gap-2 mt-2 w-full">
-                  <FaUserAlt className="text-cyan-400 mt-1 text-lg" />
-                  <div className="w-full">
-                    <span className="font-semibold text-white text-lg">
-                      Bio:
-                    </span>
-                    <div className="bg-purple-800/50 p-6 rounded-lg mt-2 min-h-[200px] text-white text-lg w-full max-w-full shadow-lg">
-                      {profile.bio}
+                {/* Profile Information Cards */}
+                <div className="w-full space-y-4">
+                  <div className="p-4 rounded-xl bg-white/5 border border-purple-400/20 hover:bg-white/10 transition-all duration-300">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600">
+                        <FaEnvelope className="text-white text-lg" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">
+                          Email
+                        </p>
+                        <p className="text-white font-medium">{user.email}</p>
+                      </div>
                     </div>
                   </div>
+
+                  {profile.address && (
+                    <div className="p-4 rounded-xl bg-white/5 border border-purple-400/20 hover:bg-white/10 transition-all duration-300">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600">
+                          <FaMapMarkerAlt className="text-white text-lg" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">
+                            Address
+                          </p>
+                          <p className="text-white font-medium">
+                            {profile.address}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {profile.school && (
+                    <div className="p-4 rounded-xl bg-white/5 border border-purple-400/20 hover:bg-white/10 transition-all duration-300">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600">
+                          <FaSchool className="text-white text-lg" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">
+                            School
+                          </p>
+                          <p className="text-white font-medium">
+                            {profile.school}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {profile.course && (
+                    <div className="p-4 rounded-xl bg-white/5 border border-purple-400/20 hover:bg-white/10 transition-all duration-300">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600">
+                          <FaBook className="text-white text-lg" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">
+                            Course
+                          </p>
+                          <p className="text-white font-medium">
+                            {profile.course}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {profile.bio && (
+                    <div className="p-4 rounded-xl bg-white/5 border border-purple-400/20 hover:bg-white/10 transition-all duration-300">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600">
+                          <FaUserAlt className="text-white text-lg" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider mb-2">
+                            Bio
+                          </p>
+                          <p className="text-white leading-relaxed">
+                            {profile.bio}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
+            </div>
+
+            {/* Right Column - Edit Form */}
+            <div className="rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg border border-purple-400/20 p-8 shadow-xl">
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-white">
+                <FaEdit className="text-cyan-400" />
+                Edit Profile
+              </h2>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  updateProfile();
+                }}
+                className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-purple-200 mb-2">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    value={user.username}
+                    onChange={(e) =>
+                      setUser({ ...user, username: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-purple-400/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-purple-200 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={user.email}
+                    onChange={(e) =>
+                      setUser({ ...user, email: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-purple-400/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-purple-200 mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Full Name"
+                    value={user.full_name || ""}
+                    onChange={(e) =>
+                      setUser({ ...user, full_name: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-purple-400/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-purple-200 mb-2">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Address"
+                    value={profile.address || ""}
+                    onChange={(e) =>
+                      setProfile({ ...profile, address: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-purple-400/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-purple-200 mb-2">
+                    School
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="School"
+                    value={profile.school || ""}
+                    onChange={(e) =>
+                      setProfile({ ...profile, school: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-purple-400/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-purple-200 mb-2">
+                    Course
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Course"
+                    value={profile.course || ""}
+                    onChange={(e) =>
+                      setProfile({ ...profile, course: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-purple-400/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-purple-200 mb-2">
+                    Bio
+                  </label>
+                  <textarea
+                    placeholder="Tell us about yourself..."
+                    value={profile.bio || ""}
+                    onChange={(e) =>
+                      setProfile({ ...profile, bio: e.target.value })
+                    }
+                    rows={4}
+                    className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-purple-400/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300 resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-purple-200 mb-2">
+                    Profile Picture
+                  </label>
+                  <label className="flex items-center gap-3 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-purple-400/30 cursor-pointer hover:bg-white/15 transition-all duration-300 group">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 group-hover:scale-110 transition-transform duration-300">
+                      <FaUpload className="text-white" />
+                    </div>
+                    <span className="text-white font-medium flex-1">
+                      {selectedFile ?
+                        selectedFile.name
+                      : "Choose a profile picture"}
+                    </span>
+                    <input
+                      type="file"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      accept="image/*"
+                    />
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full mt-6 px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl hover:from-purple-500 hover:to-pink-500 text-white font-semibold shadow-lg shadow-purple-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex items-center justify-center gap-2">
+                  <FaSave /> Save Changes
+                </button>
+              </form>
             </div>
           </div>
+        </section>
+      </main>
 
-          <div className="flex-1 bg-purple-900/90 rounded-2xl shadow-lg p-6 flex flex-col min-h-[500px]">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <FaUser className="text-cyan-400" />
-              Account Details
-            </h2>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                updateProfile();
-              }}
-              className="flex flex-col gap-4 flex-1">
-              <input
-                type="text"
-                placeholder="Username"
-                value={user.username}
-                onChange={(e) => setUser({ ...user, username: e.target.value })}
-                className="p-2 rounded bg-purple-700 border border-purple-600"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={user.email}
-                onChange={(e) => setUser({ ...user, email: e.target.value })}
-                className="p-2 rounded bg-purple-700 border border-purple-600"
-              />
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={user.full_name || ""}
-                onChange={(e) =>
-                  setUser({ ...user, full_name: e.target.value })
-                }
-                className="p-2 rounded bg-purple-700 border border-purple-600"
-              />
-              <input
-                type="text"
-                placeholder="Address"
-                value={profile.address || ""}
-                onChange={(e) =>
-                  setProfile({ ...profile, address: e.target.value })
-                }
-                className="p-2 rounded bg-purple-700 border border-purple-600"
-              />
-              <input
-                type="text"
-                placeholder="School"
-                value={profile.school || ""}
-                onChange={(e) =>
-                  setProfile({ ...profile, school: e.target.value })
-                }
-                className="p-2 rounded bg-purple-700 border border-purple-600"
-              />
-              <input
-                type="text"
-                placeholder="Course"
-                value={profile.course || ""}
-                onChange={(e) =>
-                  setProfile({ ...profile, course: e.target.value })
-                }
-                className="p-2 rounded bg-purple-700 border border-purple-600"
-              />
-              <textarea
-                placeholder="Bio"
-                value={profile.bio || ""}
-                onChange={(e) =>
-                  setProfile({ ...profile, bio: e.target.value })
-                }
-                className="p-2 rounded bg-purple-700 border border-purple-600"
-              />
-              <label className="flex items-center gap-2 p-2 bg-purple-700 border border-purple-600 rounded cursor-pointer hover:bg-purple-800 transition">
-                <FaUpload className="text-cyan-400" />
-                <span>
-                  {selectedFile ? selectedFile.name : "Upload Profile Picture"}
-                </span>
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </label>
-
-              <button
-                type="submit"
-                className="mt-4 px-8 py-3 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition w-full self-start">
-                Save Changes
-              </button>
-            </form>
+      {/* Alert Notification */}
+      {alertMessage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div
+            className={`px-8 py-4 rounded-2xl shadow-2xl text-white text-lg font-semibold transform transition-all duration-300 ${
+              alertType === "success" ?
+                "bg-gradient-to-r from-green-600 to-emerald-600 scale-100"
+              : "bg-gradient-to-r from-red-600 to-rose-600 scale-100"
+            }`}>
+            {alertMessage}
           </div>
         </div>
-      </main>
+      )}
     </div>
   );
 }
